@@ -8,7 +8,7 @@ enum AuthState {
 
 struct ContentView: View {
     @State private var authState: AuthState = .login
-    @AppStorage("isAuthenticated") private var isAuthenticated = false
+    @AppStorage("isAuthenticated") private var isAuthenticated = true
     
     var body: some View {
         NavigationView {
