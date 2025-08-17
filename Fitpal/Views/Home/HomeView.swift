@@ -1,14 +1,5 @@
 import SwiftUI
 
-struct HealthCard: Identifiable {
-    let id = UUID()
-    let title: String
-    let value: String
-    let unit: String
-    let icon: String
-    let color: Color
-}
-
 struct HomeView: View {
     let userName = "Kavishka Senavirathna"
     @State private var showNotifications = false
@@ -19,10 +10,10 @@ struct HomeView: View {
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
     let healthCards = [
-        HealthCard(title: "BPM", value: "65", unit: "Heat Rate", icon: "heart.fill", color: .green),
-        HealthCard(title: "Steps", value: "7,500", unit: "Daily Steps", icon: "figure.walk", color: .blue),
-        HealthCard(title: "Hours", value: "7", unit: "sleep", icon: "moon.fill", color: .indigo),
-        HealthCard(title: "Km", value: "6.2", unit: "Distance", icon: "location.fill", color: .teal)
+        HealthCardData(title: "BPM", value: "65", unit: "Heat Rate", icon: "heart.fill", color: .green),
+        HealthCardData(title: "Steps", value: "7,500", unit: "Daily Steps", icon: "figure.walk", color: .blue),
+        HealthCardData(title: "Hours", value: "7", unit: "sleep", icon: "moon.fill", color: .indigo),
+        HealthCardData(title: "Km", value: "6.2", unit: "Distance", icon: "location.fill", color: .teal)
     ]
     
     private var dateFormatter: DateFormatter {
@@ -146,7 +137,7 @@ struct HomeView: View {
 }
 
 struct HealthStatusCard: View {
-    let card: HealthCard
+    let card: HealthCardData
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {

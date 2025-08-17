@@ -2,6 +2,8 @@ import SwiftUI
 
 struct HealthReportsView: View {
     @Environment(\.dismiss) private var dismiss
+    @State private var showingBloodSugarView = false
+    @State private var showingHeartRiskView = false
     
     var body: some View {
         VStack(spacing: 20) {
@@ -41,10 +43,37 @@ struct HealthReportsView: View {
                     GridItem(.flexible()),
                     GridItem(.flexible())
                 ], spacing: 16) {
-                    ToolCard(title: "Heart Risk\nChecker", iconName: "heart.fill", color: Color(hex: "003B7A"))
-                    ToolCard(title: "Blood Sugar Risk\nEstimator", iconName: "drop.fill", color: Color(hex: "7C96B6"))
-                    ToolCard(title: "Cholesterol\nTracker", iconName: "pills.fill", color: Color(hex: "00C7B5"))
-                    ToolCard(title: "Body Weight\nChecker", iconName: "figure.walk", color: Color(hex: "003B7A"))
+                    ToolCard(
+                        title: "Heart Risk\nChecker", 
+                        iconName: "heart.fill", 
+                        color: Color(hex: "003B7A")
+                    ) {
+                        showingHeartRiskView = true
+                    }
+                    
+                    ToolCard(
+                        title: "Blood Sugar Risk\nEstimator", 
+                        iconName: "drop.fill", 
+                        color: Color(hex: "7C96B6")
+                    ) {
+                        showingBloodSugarView = true
+                    }
+                    
+                    ToolCard(
+                        title: "Cholesterol\nTracker", 
+                        iconName: "pills.fill", 
+                        color: Color(hex: "00C7B5")
+                    ) {
+                        // Handle cholesterol tracker tap
+                    }
+                    
+                    ToolCard(
+                        title: "Body Weight\nChecker", 
+                        iconName: "figure.walk", 
+                        color: Color(hex: "003B7A")
+                    ) {
+                        // Handle body weight checker tap
+                    }
                 }
                 .padding(.horizontal)
             }
@@ -65,6 +94,12 @@ struct HealthReportsView: View {
                     .foregroundColor(.blue)
                 }
             }
+        }
+        .fullScreenCover(isPresented: $showingBloodSugarView) {
+            BloodSugarView()
+        }
+        .fullScreenCover(isPresented: $showingHeartRiskView) {
+            HeartRiskView()
         }
     }
 }
@@ -104,9 +139,10 @@ struct ToolCard: View {
     let title: String
     let iconName: String
     let color: Color
+    let action: () -> Void
     
     var body: some View {
-        Button(action: {}) {
+        Button(action: action) {
             VStack(spacing: 12) {
                 Image(systemName: iconName)
                     .font(.system(size: 24))
@@ -125,33 +161,6 @@ struct ToolCard: View {
             .background(Color.gray.opacity(0.1))
             .cornerRadius(12)
         }
-    }
-}
-
-// Helper extension for hex colors
-extension Color {
-    init(hex: String) {
-        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
-        var int: UInt64 = 0
-        Scanner(string: hex).scanHexInt64(&int)
-        let a, r, g, b: UInt64
-        switch hex.count {
-        case 3:
-            (a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
-        case 6:
-            (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
-        case 8:
-            (a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
-        default:
-            (a, r, g, b) = (255, 0, 0, 0)
-        }
-        self.init(
-            .sRGB,
-            red: Double(r) / 255,
-            green: Double(g) / 255,
-            blue: Double(b) / 255,
-            opacity: Double(a) / 255
-        )
     }
 }
 

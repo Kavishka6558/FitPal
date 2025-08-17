@@ -23,7 +23,7 @@ struct ReportView: View {
                 // Feature Cards
                 VStack(spacing: 12) {
                     NavigationLink(destination: HealthProfileView()) {
-                        FeatureCard(
+                        FeatureCard1(
                             title: "Advanced Analytics With AI",
                             description: "Get insight and analytics on your data",
                             iconName: "cpu",
@@ -32,7 +32,7 @@ struct ReportView: View {
                     }
                     
                     NavigationLink(destination: DailyCheckInView()) {
-                        FeatureCard(
+                        FeatureCard1(
                             title: "Daily Check-In",
                             description: "Log today's Health Data",
                             iconName: "clipboard.fill",
@@ -41,7 +41,7 @@ struct ReportView: View {
                     }
                     
                     NavigationLink(destination: AISuggestionsView()) {
-                        FeatureCard(
+                        FeatureCard1(
                             title: "AI suggest Today",
                             description: "Health tips for maintain keep better health",
                             iconName: "lightbulb.fill",
@@ -63,19 +63,19 @@ struct ReportView: View {
                         GridItem(.flexible())
                     ], spacing: 16) {
                         NavigationLink(destination: HeartRiskView()) {
-                            ToolCard(title: "Heart Risk\nChecker", iconName: "heart.fill", color: .blue)
+                            ToolCard1(title: "Heart Risk\nChecker", iconName: "heart.fill", color: .blue)
                         }
                         
                         NavigationLink(destination: BloodSugarView()) {
-                            ToolCard(title: "Blood Sugar Risk\nEstimator", iconName: "drop.fill", color: .gray)
+                            ToolCard1(title: "Blood Sugar Risk\nEstimator", iconName: "drop.fill", color: .gray)
                         }
                         
                         NavigationLink(destination: CholesterolView()) {
-                            ToolCard(title: "Cholesterol\nTracker", iconName: "pills.fill", color: .teal)
+                            ToolCard1(title: "Cholesterol\nTracker", iconName: "pills.fill", color: .teal)
                         }
                         
                         NavigationLink(destination: BodyWeightView()) {
-                            ToolCard(title: "Body Weight\nChecker", iconName: "figure.walk", color: .blue)
+                            ToolCard1(title: "Body Weight\nChecker", iconName: "figure.walk", color: .blue)
                         }
                     }
                     .padding(.horizontal)
@@ -176,18 +176,6 @@ struct DailyCheckInView: View {
 struct AISuggestionsView: View {
     var body: some View {
         Text("AI Suggestions View")
-    }
-}
-
-struct HeartRiskView: View {
-    var body: some View {
-        Text("Heart Risk View")
-    }
-}
-
-struct BloodSugarView: View {
-    var body: some View {
-        Text("Blood Sugar View")
     }
 }
 

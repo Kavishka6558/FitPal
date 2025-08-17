@@ -6,6 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		16108B4D2E51EEAE0024FA67 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 16108B4C2E51EEAE0024FA67 /* FirebaseAuth */; };
+		16108B4F2E51EEAE0024FA67 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 16108B4E2E51EEAE0024FA67 /* FirebaseCore */; };
+		16108B512E51EEAE0024FA67 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 16108B502E51EEAE0024FA67 /* FirebaseFirestore */; };
+		16108B532E51EEAE0024FA67 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 16108B522E51EEAE0024FA67 /* FirebaseStorage */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		1608FFB42E5048C000B62A78 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +59,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				16108B4F2E51EEAE0024FA67 /* FirebaseCore in Frameworks */,
+				16108B532E51EEAE0024FA67 /* FirebaseStorage in Frameworks */,
+				16108B4D2E51EEAE0024FA67 /* FirebaseAuth in Frameworks */,
+				16108B512E51EEAE0024FA67 /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +123,10 @@
 			);
 			name = Fitpal;
 			packageProductDependencies = (
+				16108B4C2E51EEAE0024FA67 /* FirebaseAuth */,
+				16108B4E2E51EEAE0024FA67 /* FirebaseCore */,
+				16108B502E51EEAE0024FA67 /* FirebaseFirestore */,
+				16108B522E51EEAE0024FA67 /* FirebaseStorage */,
 			);
 			productName = Fitpal;
 			productReference = 1608FFA62E5048BF00B62A78 /* Fitpal.app */;
@@ -195,6 +210,9 @@
 			);
 			mainGroup = 1608FF9D2E5048BF00B62A78;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				16108B4B2E51EEAE0024FA67 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 1608FFA72E5048BF00B62A78 /* Products */;
 			projectDirPath = "";
@@ -393,10 +411,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Fitpal/Fitpal.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XJL3F8ZZ9Q;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "\"Fitpal uses Face ID to provide secure and convenient access to your health data and personal fitness information.\"";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -420,10 +441,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Fitpal/Fitpal.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XJL3F8ZZ9Q;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "\"Fitpal uses Face ID to provide secure and convenient access to your health data and personal fitness information.\"";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -550,6 +574,40 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		16108B4B2E51EEAE0024FA67 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.1.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		16108B4C2E51EEAE0024FA67 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 16108B4B2E51EEAE0024FA67 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		16108B4E2E51EEAE0024FA67 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 16108B4B2E51EEAE0024FA67 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		16108B502E51EEAE0024FA67 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 16108B4B2E51EEAE0024FA67 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		16108B522E51EEAE0024FA67 /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 16108B4B2E51EEAE0024FA67 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 1608FF9E2E5048BF00B62A78 /* Project object */;
 }
