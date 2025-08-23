@@ -110,8 +110,8 @@ struct HomeView: View {
                         .fontWeight(.bold)
                     
                     HStack(spacing: 20) {
-                        NavigationLink(destination: WalkTrackingView()) {
-                            QuickActionButton(title: "Fitness", icon: "figure.walk", color: .blue)
+                        NavigationLink(destination: RoutinesView()) {
+                            QuickActionButton(title: "Records", icon: "list.bullet", color: .orange)
                         }
                         NavigationLink(destination: WorkoutView()) {
                             QuickActionButton(title: "Workouts", icon: "dumbbell", color: .green)

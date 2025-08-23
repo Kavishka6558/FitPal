@@ -12,16 +12,16 @@ struct MainTabView: View {
                 }
                 .tag(0)
             
-            ReportView()
+            WalkTrackingView()
                 .tabItem {
-                    Image(systemName: "chart.bar")
-                    Text("Report")
+                    Image(systemName: "figure.walk")
+                    Text("Fitness")
                 }
                 .tag(1)
             
             WorkoutView()
                 .tabItem {
-                    Image(systemName: "figure.walk")
+                    Image(systemName: "dumbbell")
                     Text("Workout")
                 }
                 .tag(2)

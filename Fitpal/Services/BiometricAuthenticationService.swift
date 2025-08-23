@@ -27,6 +27,11 @@ class BiometricAuthenticationService: ObservableObject {
         checkBiometricAvailability()
         loadBiometricSettings()
         setupAppLifecycleObservers()
+        
+        // Debug log
+        print("BiometricAuthenticationService initialized")
+        print("Biometric type detected: \(biometricType)")
+        print("Biometric enabled: \(isBiometricEnabled)")
     }
     
     private func setupAppLifecycleObservers() {
@@ -36,28 +41,50 @@ class BiometricAuthenticationService: ObservableObject {
             queue: .main
         ) { _ in
             // App is going to background - this will trigger re-authentication on next launch
+            self.context.invalidate() // Invalidate context when app goes to background
         }
     }
     
     // MARK: - Biometric Availability
-    func checkBiometricAvailability() {
+    @discardableResult
+    func checkBiometricAvailability() -> BiometricType {
+        // Create a fresh context each time
+        let freshContext = LAContext()
         var error: NSError?
         
-        if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
-            switch context.biometryType {
+        // Check if device can use biometrics
+        if freshContext.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
+            switch freshContext.biometryType {
             case .faceID:
                 biometricType = .faceID
+                print("✅ FaceID is available")
             case .touchID:
                 biometricType = .touchID
+                print("✅ TouchID is available")
             case .opticID:
                 biometricType = .opticID
+                print("✅ OpticID is available")
             default:
                 biometricType = .none
+                print("❌ No biometric type detected despite canEvaluatePolicy returning true")
             }
         } else {
             biometricType = .none
-            print("Biometric authentication not available: \(error?.localizedDescription ?? "Unknown error")")
+            if let error = error {
+                print("❌ Biometric authentication not available: \(error.localizedDescription)")
+                if error.code == LAError.Code.biometryNotEnrolled.rawValue {
+                    // User hasn't set up Face ID/Touch ID
+                    print("❌ Biometrics not enrolled on this device")
+                } else if error.code == LAError.Code.biometryNotAvailable.rawValue {
+                    // Device doesn't support biometrics
+                    print("❌ Biometrics not available on this device")
+                }
+            } else {
+                print("❌ Unknown biometric error")
+            }
         }
+        
+        return biometricType
     }
     
     func getBiometricType() -> BiometricType {
@@ -201,10 +228,32 @@ class BiometricAuthenticationService: ObservableObject {
     
     // MARK: - Biometric Authentication
     func setupBiometricAuthentication() async -> Bool {
+        // Create a fresh context each time
+        let freshContext = LAContext()
         let reason = "Enable \(biometricTypeString) to quickly and securely access your account"
         
+        // First check if biometrics are available
+        self.checkBiometricAvailability()
+        
+        // If biometrics are not available or supported, return false
+        if biometricType == .none {
+            DispatchQueue.main.async {
+                self.errorMessage = "Biometric authentication not available on this device"
+            }
+            return false
+        }
+        
         do {
-            let success = try await context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason)
+            // Verify that biometric authentication is available
+            var authError: NSError?
+            if !freshContext.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &authError) {
+                DispatchQueue.main.async {
+                    self.errorMessage = "Biometric authentication not available: \(authError?.localizedDescription ?? "Unknown error")"
+                }
+                return false
+            }
+            
+            let success = try await freshContext.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason)
             
             if success {
                 DispatchQueue.main.async {
@@ -223,10 +272,21 @@ class BiometricAuthenticationService: ObservableObject {
     }
     
     func enableBiometricAuthentication(email: String, password: String) async -> Bool {
+        // Create a fresh context each time
+        let freshContext = LAContext()
         let reason = "Enable \(biometricTypeString) to quickly and securely access your account"
         
         do {
-            let success = try await context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason)
+            // Verify that biometric authentication is available
+            var authError: NSError?
+            if !freshContext.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &authError) {
+                DispatchQueue.main.async {
+                    self.errorMessage = "Biometric authentication not available: \(authError?.localizedDescription ?? "Unknown error")"
+                }
+                return false
+            }
+            
+            let success = try await freshContext.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason)
             
             if success {
                 DispatchQueue.main.async {
@@ -259,10 +319,22 @@ class BiometricAuthenticationService: ObservableObject {
             self.errorMessage = nil
         }
         
+        // Create a fresh context each time
+        let freshContext = LAContext()
         let reason = "Use \(biometricTypeString) to sign in to your account"
         
         do {
-            let success = try await context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason)
+            // Verify that biometric authentication is available
+            var authError: NSError?
+            if !freshContext.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &authError) {
+                DispatchQueue.main.async {
+                    self.isLoading = false
+                    self.errorMessage = "Biometric authentication not available: \(authError?.localizedDescription ?? "Unknown error")"
+                }
+                return nil
+            }
+            
+            let success = try await freshContext.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason)
             
             DispatchQueue.main.async {
                 self.isLoading = false

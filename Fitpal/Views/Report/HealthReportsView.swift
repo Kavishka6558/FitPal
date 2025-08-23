@@ -96,10 +96,10 @@ struct HealthReportsView: View {
             }
         }
         .fullScreenCover(isPresented: $showingBloodSugarView) {
-            BloodSugarView()
+            BloodSugarRiskView()
         }
         .fullScreenCover(isPresented: $showingHeartRiskView) {
-            HeartRiskView()
+            HeartRiskCheckerView()
         }
     }
 }
