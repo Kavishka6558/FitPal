@@ -16,141 +16,426 @@ struct HeartRiskCheckerView: View {
     
     let genderOptions = ["Male", "Female"]
     
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                Text("Heart Risk Assessment")
-                    .font(.largeTitle)
+    private var backgroundGradient: LinearGradient {
+        LinearGradient(
+            colors: [
+                Color(.systemRed).opacity(0.08),
+                Color(.systemPink).opacity(0.05),
+                Color(.systemBackground)
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+    
+    private var headerView: some View {
+        VStack(spacing: 16) {
+            HStack {
+                Button(action: {
+                    dismiss()
+                }) {
+                    Circle()
+                        .fill(.ultraThinMaterial)
+                        .frame(width: 44, height: 44)
+                        .overlay(
+                            Image(systemName: "chevron.left")
+                                .font(.title3)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.primary)
+                        )
+                        .shadow(color: .black.opacity(0.1), radius: 6, x: 0, y: 3)
+                }
+                
+                Spacer()
+                
+                VStack(spacing: 2) {
+                    Text("Heart Risk Checker")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.primary)
+                    
+                    Text("Health Assessment")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                
+                Spacer()
+                
+                Circle()
+                    .fill(.red.opacity(0.1))
+                    .frame(width: 44, height: 44)
+                    .overlay(
+                        Image(systemName: "heart.fill")
+                            .font(.title3)
+                            .foregroundStyle(.red.gradient)
+                    )
+            }
+            
+            VStack(spacing: 8) {
+                Text("Cardiovascular Risk Assessment")
+                    .font(.title3)
                     .fontWeight(.bold)
+                    .foregroundColor(.primary)
                 
-                Text("This tool estimates your 10-year risk of heart disease based on the Framingham Risk Score.")
+                Text("Calculate your 10-year risk of heart disease using the Framingham Risk Score methodology.")
+                    .font(.subheadline)
                     .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+        }
+    }
+    
+    var body: some View {
+        ZStack {
+            backgroundGradient
+                .ignoresSafeArea()
+            
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 28) {
+                    headerView
                 
-                GroupBox(label: Text("Personal Information")
-                    .font(.headline)) {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Picker("Gender", selection: $gender) {
-                            ForEach(genderOptions, id: \.self) {
-                                Text($0)
+                    // Personal Information Section
+                    VStack(alignment: .leading, spacing: 20) {
+                        HStack {
+                            Circle()
+                                .fill(.purple.opacity(0.15))
+                                .frame(width: 32, height: 32)
+                                .overlay(
+                                    Image(systemName: "person.fill")
+                                        .font(.system(size: 16))
+                                        .foregroundColor(.purple)
+                                )
+                            
+                            Text("Personal Information")
+                                .font(.title3)
+                                .fontWeight(.bold)
+                                .foregroundColor(.primary)
+                            
+                            Spacer()
+                        }
+                        
+                        VStack(spacing: 16) {
+                            // Gender Picker
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Gender")
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.primary)
+                                
+                                Picker("Gender", selection: $gender) {
+                                    ForEach(genderOptions, id: \.self) {
+                                        Text($0)
+                                    }
+                                }
+                                .pickerStyle(SegmentedPickerStyle())
+                            }
+                            
+                            ModernInputField(
+                                title: "Age",
+                                subtitle: "Your current age in years",
+                                placeholder: "Years",
+                                text: $age,
+                                keyboardType: .numberPad,
+                                required: true
+                            )
+                            
+                            VStack(spacing: 12) {
+                                ModernToggleCard(
+                                    title: "Smoker",
+                                    subtitle: "Current or recent tobacco use",
+                                    icon: "smoke.fill",
+                                    iconColor: .gray,
+                                    isOn: $smoker
+                                )
+                                
+                                ModernToggleCard(
+                                    title: "Diabetic",
+                                    subtitle: "Diagnosed with diabetes",
+                                    icon: "cross.fill",
+                                    iconColor: .red,
+                                    isOn: $diabetic
+                                )
+                                
+                                ModernToggleCard(
+                                    title: "Taking BP Medication",
+                                    subtitle: "Currently on blood pressure medication",
+                                    icon: "pills.fill",
+                                    iconColor: .blue,
+                                    isOn: $takingBPMeds
+                                )
                             }
                         }
-                        .pickerStyle(SegmentedPickerStyle())
-                        .padding(.vertical, 5)
-                        
-                        VStack(alignment: .leading, spacing: 5) {
-                            Text("Age")
-                            TextField("Years", text: $age)
-                                .keyboardType(.numberPad)
-                                .padding()
-                                .background(Color(UIColor.systemGray6))
-                                .cornerRadius(8)
-                        }
-                        
-                        Toggle("Smoker", isOn: $smoker)
-                            .padding(.vertical, 5)
-                        
-                        Toggle("Diabetic", isOn: $diabetic)
-                            .padding(.vertical, 5)
-                        
-                        Toggle("Taking BP Medication", isOn: $takingBPMeds)
-                            .padding(.vertical, 5)
                     }
-                    .padding(.horizontal, 5)
-                }
+                    .padding(24)
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .stroke(.white.opacity(0.2), lineWidth: 1)
+                    )
+                    .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 5)
                 
-                GroupBox(label: Text("Blood Pressure")
-                    .font(.headline)) {
-                    VStack(alignment: .leading, spacing: 12) {
-                        VStack(alignment: .leading, spacing: 5) {
-                            Text("Systolic Blood Pressure")
-                            TextField("mmHg", text: $systolicBP)
-                                .keyboardType(.numberPad)
-                                .padding()
-                                .background(Color(UIColor.systemGray6))
-                                .cornerRadius(8)
+                    // Blood Pressure Section
+                    VStack(alignment: .leading, spacing: 20) {
+                        HStack {
+                            Circle()
+                                .fill(.red.opacity(0.15))
+                                .frame(width: 32, height: 32)
+                                .overlay(
+                                    Image(systemName: "heart.text.square.fill")
+                                        .font(.system(size: 16))
+                                        .foregroundColor(.red)
+                                )
+                            
+                            Text("Blood Pressure")
+                                .font(.title3)
+                                .fontWeight(.bold)
+                                .foregroundColor(.primary)
+                            
+                            Spacer()
                         }
                         
-                        VStack(alignment: .leading, spacing: 5) {
-                            Text("Diastolic Blood Pressure")
-                            TextField("mmHg", text: $diastolicBP)
-                                .keyboardType(.numberPad)
-                                .padding()
-                                .background(Color(UIColor.systemGray6))
-                                .cornerRadius(8)
-                        }
-                    }
-                    .padding(.horizontal, 5)
-                }
-                
-                GroupBox(label: Text("Cholesterol")
-                    .font(.headline)) {
-                    VStack(alignment: .leading, spacing: 12) {
-                        VStack(alignment: .leading, spacing: 5) {
-                            Text("Total Cholesterol")
-                            TextField("mg/dL", text: $cholesterol)
-                                .keyboardType(.numberPad)
-                                .padding()
-                                .background(Color(UIColor.systemGray6))
-                                .cornerRadius(8)
-                        }
-                        
-                        VStack(alignment: .leading, spacing: 5) {
-                            Text("HDL Cholesterol")
-                            TextField("mg/dL", text: $hdl)
-                                .keyboardType(.numberPad)
-                                .padding()
-                                .background(Color(UIColor.systemGray6))
-                                .cornerRadius(8)
+                        VStack(spacing: 16) {
+                            ModernInputField(
+                                title: "Systolic Blood Pressure",
+                                subtitle: "Top number in blood pressure reading",
+                                placeholder: "mmHg",
+                                text: $systolicBP,
+                                keyboardType: .numberPad,
+                                required: true
+                            )
+                            
+                            ModernInputField(
+                                title: "Diastolic Blood Pressure",
+                                subtitle: "Bottom number in blood pressure reading",
+                                placeholder: "mmHg",
+                                text: $diastolicBP,
+                                keyboardType: .numberPad,
+                                required: false
+                            )
                         }
                     }
-                    .padding(.horizontal, 5)
-                }
+                    .padding(24)
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .stroke(.white.opacity(0.2), lineWidth: 1)
+                    )
+                    .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 5)
                 
-                Button(action: calculateRisk) {
-                    Text("Calculate Risk")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue)
-                        .cornerRadius(10)
-                }
-                .padding(.vertical)
-                
-                if showResults {
-                    GroupBox(label: Text("Your Results")
-                        .font(.headline)) {
-                        VStack(alignment: .leading, spacing: 15) {
-                            Text("Your 10-year cardiovascular risk:")
-                                .fontWeight(.medium)
+                    // Cholesterol Section
+                    VStack(alignment: .leading, spacing: 20) {
+                        HStack {
+                            Circle()
+                                .fill(.green.opacity(0.15))
+                                .frame(width: 32, height: 32)
+                                .overlay(
+                                    Image(systemName: "drop.triangle.fill")
+                                        .font(.system(size: 16))
+                                        .foregroundColor(.green)
+                                )
                             
-                            Text("\(Int(riskScore))%")
-                                .font(.system(size: 48, weight: .bold))
-                                .foregroundColor(riskColor(score: riskScore))
-                                .frame(maxWidth: .infinity)
-                                .padding()
+                            Text("Cholesterol Levels")
+                                .font(.title3)
+                                .fontWeight(.bold)
+                                .foregroundColor(.primary)
                             
-                            Text(riskInterpretation(score: riskScore))
-                                .font(.body)
-                                .lineSpacing(4)
-                                .padding(.vertical)
-                            
-                            Text("Next Steps")
-                                .font(.headline)
-                                .padding(.top)
-                            
-                            Text(recommendationText(score: riskScore))
-                                .font(.body)
-                                .lineSpacing(4)
+                            Spacer()
                         }
-                        .padding(.horizontal, 5)
+                        
+                        VStack(spacing: 16) {
+                            ModernInputField(
+                                title: "Total Cholesterol",
+                                subtitle: "Overall cholesterol level in blood",
+                                placeholder: "mg/dL",
+                                text: $cholesterol,
+                                keyboardType: .numberPad,
+                                required: true
+                            )
+                            
+                            ModernInputField(
+                                title: "HDL Cholesterol",
+                                subtitle: "High-density lipoprotein (good cholesterol)",
+                                placeholder: "mg/dL",
+                                text: $hdl,
+                                keyboardType: .numberPad,
+                                required: true
+                            )
+                        }
+                    }
+                    .padding(24)
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .stroke(.white.opacity(0.2), lineWidth: 1)
+                    )
+                    .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 5)
+                
+                    // Assessment Button
+                    Button(action: calculateRisk) {
+                        HStack(spacing: 16) {
+                            Circle()
+                                .fill(.white.opacity(0.2))
+                                .frame(width: 56, height: 56)
+                                .overlay(
+                                    Image(systemName: "heart.text.square")
+                                        .font(.title2)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.white)
+                                )
+                            
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Calculate Heart Risk")
+                                    .font(.title3)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                
+                                Text("Get your Framingham Risk Score")
+                                    .font(.caption)
+                                    .foregroundColor(.white.opacity(0.8))
+                            }
+                            
+                            Spacer()
+                            
+                            Image(systemName: "chevron.right")
+                                .font(.title3)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white.opacity(0.7))
+                        }
+                        .padding(20)
+                        .background(
+                            LinearGradient(
+                                colors: [.red, .pink],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                .stroke(.white.opacity(0.2), lineWidth: 1)
+                        )
+                        .shadow(color: Color.red.opacity(0.3), radius: 15, x: 0, y: 8)
+                    }
+                
+                    if showResults {
+                        // Results Section
+                        VStack(alignment: .leading, spacing: 20) {
+                            HStack {
+                                Circle()
+                                    .fill(riskColor(score: riskScore).opacity(0.15))
+                                    .frame(width: 32, height: 32)
+                                    .overlay(
+                                        Image(systemName: "chart.bar.doc.horizontal.fill")
+                                            .font(.system(size: 16))
+                                            .foregroundColor(riskColor(score: riskScore))
+                                    )
+                                
+                                Text("Risk Assessment Results")
+                                    .font(.title3)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.primary)
+                                
+                                Spacer()
+                            }
+                            
+                            // Risk Score Display
+                            VStack(spacing: 20) {
+                                VStack(spacing: 12) {
+                                    Text("10-Year Cardiovascular Risk")
+                                        .font(.headline)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.secondary)
+                                    
+                                    HStack {
+                                        Circle()
+                                            .fill(riskColor(score: riskScore).opacity(0.2))
+                                            .frame(width: 100, height: 100)
+                                            .overlay(
+                                                VStack(spacing: 4) {
+                                                    Text("\(Int(riskScore))")
+                                                        .font(.system(size: 36, weight: .bold))
+                                                        .foregroundColor(riskColor(score: riskScore))
+                                                    Text("%")
+                                                        .font(.caption)
+                                                        .fontWeight(.semibold)
+                                                        .foregroundColor(riskColor(score: riskScore))
+                                                }
+                                            )
+                                        
+                                        Spacer()
+                                        
+                                        VStack(alignment: .trailing, spacing: 8) {
+                                            Text(riskLevel(score: riskScore))
+                                                .font(.title3)
+                                                .fontWeight(.bold)
+                                                .foregroundColor(riskColor(score: riskScore))
+                                            
+                                            Image(systemName: riskIcon(score: riskScore))
+                                                .font(.title)
+                                                .foregroundColor(riskColor(score: riskScore))
+                                        }
+                                    }
+                                }
+                                .padding(20)
+                                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                        .stroke(riskColor(score: riskScore).opacity(0.3), lineWidth: 1)
+                                )
+                                
+                                // Risk Interpretation
+                                VStack(alignment: .leading, spacing: 12) {
+                                    Text("Risk Interpretation")
+                                        .font(.headline)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.primary)
+                                    
+                                    Text(riskInterpretation(score: riskScore))
+                                        .font(.subheadline)
+                                        .foregroundColor(.primary)
+                                        .lineSpacing(4)
+                                }
+                                .padding(20)
+                                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                        .stroke(.white.opacity(0.2), lineWidth: 1)
+                                )
+                                
+                                // Recommendations
+                                VStack(alignment: .leading, spacing: 12) {
+                                    Text("Recommendations")
+                                        .font(.headline)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.primary)
+                                    
+                                    Text(recommendationText(score: riskScore))
+                                        .font(.subheadline)
+                                        .foregroundColor(.primary)
+                                        .lineSpacing(4)
+                                }
+                                .padding(20)
+                                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                        .stroke(.white.opacity(0.2), lineWidth: 1)
+                                )
+                            }
+                        }
+                        .padding(24)
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                .stroke(.white.opacity(0.2), lineWidth: 1)
+                        )
+                        .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 5)
                     }
                 }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 32)
             }
-            .padding()
         }
-        .navigationTitle("Heart Risk Checker")
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarHidden(true)
     }
     
     private func calculateRisk() {
@@ -228,6 +513,18 @@ struct HeartRiskCheckerView: View {
         if score < 10 { return .green }
         else if score < 20 { return .orange }
         else { return .red }
+    }
+    
+    private func riskLevel(score: Double) -> String {
+        if score < 10 { return "Low Risk" }
+        else if score < 20 { return "Moderate Risk" }
+        else { return "High Risk" }
+    }
+    
+    private func riskIcon(score: Double) -> String {
+        if score < 10 { return "checkmark.shield.fill" }
+        else if score < 20 { return "exclamationmark.triangle.fill" }
+        else { return "xmark.octagon.fill" }
     }
     
     private func riskInterpretation(score: Double) -> String {

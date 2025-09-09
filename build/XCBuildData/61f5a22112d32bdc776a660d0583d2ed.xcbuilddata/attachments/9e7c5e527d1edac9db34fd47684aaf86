@@ -1,0 +1,4 @@
+module GoogleUtilities_Environment {
+umbrella "/Users/kavishka024/Library/Developer/Xcode/DerivedData/Fitpal-fsjvcudiwsxjbschrpzrxxzaffxv/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Environment/Public"
+export *
+}

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct BMICalculatorSimpleView: View {
+    @Environment(\.dismiss) private var dismiss
     @State private var height: String = ""
     @State private var weight: String = ""
     @State private var bmi: Double = 0.0
@@ -8,136 +9,258 @@ struct BMICalculatorSimpleView: View {
     @State private var showResult: Bool = false
     @State private var useMetric: Bool = true
     
-    var body: some View {
-        NavigationView {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    
-                    Text("Body Weight Checker")
-                        .font(.largeTitle)
+    private var backgroundGradient: LinearGradient {
+        LinearGradient(
+            colors: [
+                Color(.systemOrange).opacity(0.08),
+                Color(.systemYellow).opacity(0.05),
+                Color(.systemBackground)
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+    
+    private var headerView: some View {
+        VStack(spacing: 16) {
+            HStack {
+                Button(action: {
+                    dismiss()
+                }) {
+                    Circle()
+                        .fill(.ultraThinMaterial)
+                        .frame(width: 44, height: 44)
+                        .overlay(
+                            Image(systemName: "chevron.left")
+                                .font(.title3)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.primary)
+                        )
+                        .shadow(color: .black.opacity(0.1), radius: 6, x: 0, y: 3)
+                }
+                
+                Spacer()
+                
+                VStack(spacing: 2) {
+                    Text("BMI Calculator")
+                        .font(.title2)
                         .fontWeight(.bold)
-                        .padding(.top)
+                        .foregroundColor(.primary)
                     
-                    Text("Calculate your Body Mass Index (BMI) to assess if you're in a healthy weight range.")
-                        .font(.body)
+                    Text("Health Assessment")
+                        .font(.caption)
                         .foregroundColor(.secondary)
-                        .padding(.bottom)
+                }
+                
+                Spacer()
+                
+                Circle()
+                    .fill(.orange.opacity(0.1))
+                    .frame(width: 44, height: 44)
+                    .overlay(
+                        Image(systemName: "figure.walk")
+                            .font(.title3)
+                            .foregroundStyle(.orange.gradient)
+                    )
+            }
+            
+            VStack(spacing: 8) {
+                Text("Body Weight Assessment")
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+                
+                Text("Calculate your Body Mass Index (BMI) to assess if you're in a healthy weight range for your height.")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+        }
+    }
+    
+    var body: some View {
+        ZStack {
+            backgroundGradient
+                .ignoresSafeArea()
+            
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 28) {
+                    headerView
                     
-                    // Unit Toggle
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("Units")
-                            .font(.headline)
-                        
-                        Picker("Units", selection: $useMetric) {
-                            Text("Metric (cm, kg)").tag(true)
-                            Text("Imperial (ft/in, lbs)").tag(false)
-                        }
-                        .pickerStyle(SegmentedPickerStyle())
-                    }
-                    .padding(.bottom)
-                    
-                    // Input Fields
-                    VStack(alignment: .leading, spacing: 15) {
-                        VStack(alignment: .leading, spacing: 5) {
-                            Text(useMetric ? "Height (cm)" : "Height (ft)")
-                                .font(.headline)
-                            TextField(useMetric ? "e.g., 170" : "e.g., 5.8", text: $height)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                .keyboardType(.decimalPad)
+                    // Measurement Input Section
+                    VStack(alignment: .leading, spacing: 20) {
+                        HStack {
+                            Circle()
+                                .fill(.orange.opacity(0.15))
+                                .frame(width: 32, height: 32)
+                                .overlay(
+                                    Image(systemName: "ruler.fill")
+                                        .font(.system(size: 16))
+                                        .foregroundColor(.orange)
+                                )
+                            
+                            Text("Measurements")
+                                .font(.title3)
+                                .fontWeight(.bold)
+                                .foregroundColor(.primary)
+                            
+                            Spacer()
                         }
                         
-                        VStack(alignment: .leading, spacing: 5) {
-                            Text(useMetric ? "Weight (kg)" : "Weight (lbs)")
-                                .font(.headline)
-                            TextField(useMetric ? "e.g., 70" : "e.g., 154", text: $weight)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                .keyboardType(.decimalPad)
+                        VStack(spacing: 16) {
+                            // Unit Selection
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Units")
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.primary)
+                                
+                                Picker("Units", selection: $useMetric) {
+                                    Text("Metric (cm, kg)").tag(true)
+                                    Text("Imperial (ft, lbs)").tag(false)
+                                }
+                                .pickerStyle(SegmentedPickerStyle())
+                            }
+                            
+                            ModernInputField(
+                                title: useMetric ? "Height" : "Height",
+                                subtitle: useMetric ? "Your height in centimeters" : "Your height in feet (e.g., 5.8 for 5'8\")",
+                                placeholder: useMetric ? "e.g., 170" : "e.g., 5.8",
+                                text: $height,
+                                keyboardType: .decimalPad,
+                                required: true
+                            )
+                            
+                            ModernInputField(
+                                title: useMetric ? "Weight" : "Weight",
+                                subtitle: useMetric ? "Your weight in kilograms" : "Your weight in pounds",
+                                placeholder: useMetric ? "e.g., 70" : "e.g., 154",
+                                text: $weight,
+                                keyboardType: .decimalPad,
+                                required: true
+                            )
                         }
                     }
-                    .padding(.bottom)
+                    .padding(24)
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .stroke(.white.opacity(0.2), lineWidth: 1)
+                    )
+                    .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 5)
                     
                     // Calculate Button
                     Button(action: calculateBMI) {
-                        Text("Calculate BMI")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.blue)
-                            .cornerRadius(10)
-                    }
-                    .padding(.bottom)
-                    
-                    // Results
-                    if showResult {
-                        VStack(alignment: .leading, spacing: 15) {
-                            Text("Results")
-                                .font(.title2)
-                                .fontWeight(.bold)
+                        HStack(spacing: 16) {
+                            Circle()
+                                .fill(.white.opacity(0.2))
+                                .frame(width: 56, height: 56)
+                                .overlay(
+                                    Image(systemName: "plus.forwardslash.minus")
+                                        .font(.title2)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.white)
+                                )
                             
-                            HStack {
-                                Text("BMI:")
-                                    .font(.headline)
-                                Spacer()
-                                Text(String(format: "%.1f", bmi))
-                                    .font(.title2)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Calculate BMI")
+                                    .font(.title3)
                                     .fontWeight(.bold)
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(.white)
+                                
+                                Text("Get your body mass index")
+                                    .font(.caption)
+                                    .foregroundColor(.white.opacity(0.8))
                             }
                             
-                            HStack {
-                                Text("Category:")
-                                    .font(.headline)
+                            Spacer()
+                            
+                            Image(systemName: "chevron.right")
+                                .font(.title3)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white.opacity(0.7))
+                        }
+                        .padding(20)
+                        .background(
+                            LinearGradient(
+                                colors: [.orange, .yellow],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                .stroke(.white.opacity(0.2), lineWidth: 1)
+                        )
+                        .shadow(color: Color.orange.opacity(0.3), radius: 15, x: 0, y: 8)
+                    }
+                    
+                    // Results Display
+                    if showResult {
+                        VStack(spacing: 20) {
+                            // Result Header
+                            HStack(spacing: 12) {
+                                Circle()
+                                    .fill(getBMIGradient(bmi))
+                                    .frame(width: 50, height: 50)
+                                    .overlay(
+                                        Image(systemName: "heart.text.square")
+                                            .font(.title3)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.white)
+                                    )
+                                
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("BMI Result")
+                                        .font(.title3)
+                                        .fontWeight(.bold)
+                                    
+                                    Text("Body Mass Index")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                                
                                 Spacer()
-                                Text(bmiCategory)
-                                    .font(.headline)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(categoryColor(for: bmiCategory))
+                            }
+                            
+                            // BMI Value Display
+                            HStack {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text("\(String(format: "%.1f", bmi))")
+                                        .font(.system(size: 48, weight: .heavy, design: .rounded))
+                                        .foregroundStyle(getBMIGradient(bmi))
+                                    
+                                    Text(bmiCategory)
+                                        .font(.title3)
+                                        .fontWeight(.bold)
+                                        .foregroundStyle(getBMIGradient(bmi))
+                                }
+                                
+                                Spacer()
                             }
                             
                             // BMI Categories Reference
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text("BMI Categories:")
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text("BMI Categories Reference")
                                     .font(.headline)
-                                    .padding(.top)
+                                    .fontWeight(.bold)
                                 
-                                HStack {
-                                    Text("Underweight")
-                                    Spacer()
-                                    Text("< 18.5")
+                                VStack(spacing: 8) {
+                                    BMICategoryRow(category: "Underweight", range: "< 18.5", color: .blue, isHighlighted: bmiCategory == "Underweight")
+                                    BMICategoryRow(category: "Normal weight", range: "18.5 - 24.9", color: .green, isHighlighted: bmiCategory == "Normal weight")
+                                    BMICategoryRow(category: "Overweight", range: "25.0 - 29.9", color: .orange, isHighlighted: bmiCategory == "Overweight")
+                                    BMICategoryRow(category: "Obese", range: "≥ 30.0", color: .red, isHighlighted: bmiCategory == "Obese")
                                 }
-                                .foregroundColor(.blue)
-                                
-                                HStack {
-                                    Text("Normal weight")
-                                    Spacer()
-                                    Text("18.5 - 24.9")
-                                }
-                                .foregroundColor(.green)
-                                
-                                HStack {
-                                    Text("Overweight")
-                                    Spacer()
-                                    Text("25.0 - 29.9")
-                                }
-                                .foregroundColor(.orange)
-                                
-                                HStack {
-                                    Text("Obese")
-                                    Spacer()
-                                    Text("≥ 30.0")
-                                }
-                                .foregroundColor(.red)
                             }
-                            .font(.subheadline)
-                            .padding()
-                            .background(Color.gray.opacity(0.1))
-                            .cornerRadius(10)
                         }
-                        .padding()
-                        .background(Color.white)
-                        .cornerRadius(15)
-                        .shadow(color: .gray.opacity(0.2), radius: 5, x: 0, y: 2)
+                        .padding(24)
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                .stroke(.white.opacity(0.2), lineWidth: 1)
+                        )
+                        .shadow(color: .black.opacity(0.05), radius: 15, x: 0, y: 8)
                     }
                     
                     Spacer()
@@ -198,6 +321,51 @@ struct BMICalculatorSimpleView: View {
         default:
             return .black
         }
+    }
+    
+    private func getBMIGradient(_ bmi: Double) -> LinearGradient {
+        switch bmi {
+        case ..<18.5:
+            return LinearGradient(colors: [.cyan, .blue], startPoint: .leading, endPoint: .trailing)
+        case 18.5..<25:
+            return LinearGradient(colors: [.mint, .green], startPoint: .leading, endPoint: .trailing)
+        case 25..<30:
+            return LinearGradient(colors: [.yellow, .orange], startPoint: .leading, endPoint: .trailing)
+        default:
+            return LinearGradient(colors: [.orange, .red], startPoint: .leading, endPoint: .trailing)
+        }
+    }
+}
+
+struct BMICategoryRow: View {
+    let category: String
+    let range: String
+    let color: Color
+    let isHighlighted: Bool
+    
+    var body: some View {
+        HStack {
+            Text(category)
+                .font(.subheadline)
+                .fontWeight(isHighlighted ? .bold : .medium)
+            
+            Spacer()
+            
+            Text(range)
+                .font(.subheadline)
+                .fontWeight(isHighlighted ? .bold : .regular)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(isHighlighted ? color.opacity(0.2) : Color.clear)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .stroke(isHighlighted ? color : Color.gray.opacity(0.3), lineWidth: isHighlighted ? 2 : 1)
+                )
+        )
+        .foregroundColor(isHighlighted ? color : .primary)
     }
 }
 

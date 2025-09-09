@@ -1,0 +1,4 @@
+module FirebaseCore {
+umbrella header "/Users/kavishka024/Library/Developer/Xcode/DerivedData/Fitpal-fsjvcudiwsxjbschrpzrxxzaffxv/SourcePackages/checkouts/firebase-ios-sdk/FirebaseCore/Sources/Public/FirebaseCore/FirebaseCore.h"
+export *
+}

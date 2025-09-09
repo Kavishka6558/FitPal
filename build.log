@@ -1,0 +1,56 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -scheme Fitpal -destination "platform=iOS Simulator,name=iPhone 15" build
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  GoogleDataTransport: https://github.com/google/GoogleDataTransport.git @ 10.1.0
+  GoogleAdsOnDeviceConversion: https://github.com/googleads/google-ads-on-device-conversion-ios-sdk @ 2.2.0
+  GTMSessionFetcher: https://github.com/google/gtm-session-fetcher.git @ 5.0.0
+  leveldb: https://github.com/firebase/leveldb.git @ 1.22.5
+  GoogleUtilities: https://github.com/google/GoogleUtilities.git @ 8.1.0
+  Firebase: https://github.com/firebase/firebase-ios-sdk @ 12.1.0
+  Promises: https://github.com/google/promises.git @ 2.4.0
+  GoogleAppMeasurement: https://github.com/google/GoogleAppMeasurement.git @ 12.1.0
+  InteropForGoogle: https://github.com/google/interop-ios-for-google-sdks.git @ 101.0.0
+  SwiftProtobuf: https://github.com/apple/swift-protobuf.git @ 1.30.0
+  AppCheck: https://github.com/google/app-check.git @ 11.2.0
+  nanopb: https://github.com/firebase/nanopb.git @ 2.30910.0
+  abseil: https://github.com/google/abseil-cpp-binary.git @ 1.2024072200.0
+  gRPC: https://github.com/google/grpc-binary.git @ 1.69.0
+
+2025-09-09 14:45:08.389 xcodebuild[37020:534618] Writing error result bundle to /var/folders/b5/jmqthw6j6hsbthtx5r0rzkcr0000gv/T/ResultBundle_2025-09-09_14-45-0008.xcresult
+xcodebuild: error: Unable to find a device matching the provided destination specifier:
+		{ platform:iOS Simulator, OS:latest, name:iPhone 15 }
+
+	The requested device could not be found because no available devices matched the request.
+
+	Available destinations for the "Fitpal" scheme:
+		{ platform:iOS, id:dvtdevice-DVTiPhonePlaceholder-iphoneos:placeholder, name:Any iOS Device }
+		{ platform:iOS Simulator, id:dvtdevice-DVTiOSDeviceSimulatorPlaceholder-iphonesimulator:placeholder, name:Any iOS Simulator Device }
+		{ platform:iOS Simulator, arch:arm64, id:36B5529A-260D-4A07-92CA-32B71E69B483, OS:18.4, name:iPad (A16) }
+		{ platform:iOS Simulator, arch:x86_64, id:36B5529A-260D-4A07-92CA-32B71E69B483, OS:18.4, name:iPad (A16) }
+		{ platform:iOS Simulator, arch:arm64, id:90BD14A6-66F5-473A-8A8C-AA12F5E11200, OS:18.4, name:iPad Air 11-inch (M3) }
+		{ platform:iOS Simulator, arch:x86_64, id:90BD14A6-66F5-473A-8A8C-AA12F5E11200, OS:18.4, name:iPad Air 11-inch (M3) }
+		{ platform:iOS Simulator, arch:arm64, id:2B05378C-05BE-40BB-8212-638776688B02, OS:18.4, name:iPad Air 13-inch (M3) }
+		{ platform:iOS Simulator, arch:x86_64, id:2B05378C-05BE-40BB-8212-638776688B02, OS:18.4, name:iPad Air 13-inch (M3) }
+		{ platform:iOS Simulator, arch:arm64, id:16D54E91-1D1C-4865-B3C9-681329D09722, OS:18.4, name:iPad Pro 11-inch (M4) }
+		{ platform:iOS Simulator, arch:x86_64, id:16D54E91-1D1C-4865-B3C9-681329D09722, OS:18.4, name:iPad Pro 11-inch (M4) }
+		{ platform:iOS Simulator, arch:arm64, id:526B471E-63B2-4D1D-AF74-ED83CEE75775, OS:18.4, name:iPad Pro 13-inch (M4) }
+		{ platform:iOS Simulator, arch:x86_64, id:526B471E-63B2-4D1D-AF74-ED83CEE75775, OS:18.4, name:iPad Pro 13-inch (M4) }
+		{ platform:iOS Simulator, arch:arm64, id:4FDDE27C-F834-40DB-B0A6-DB2B22DC18E0, OS:18.4, name:iPad mini (A17 Pro) }
+		{ platform:iOS Simulator, arch:x86_64, id:4FDDE27C-F834-40DB-B0A6-DB2B22DC18E0, OS:18.4, name:iPad mini (A17 Pro) }
+		{ platform:iOS Simulator, arch:arm64, id:7EEB7864-C8A4-434C-A966-411D7EF80BE0, OS:18.4, name:iPhone 16 }
+		{ platform:iOS Simulator, arch:x86_64, id:7EEB7864-C8A4-434C-A966-411D7EF80BE0, OS:18.4, name:iPhone 16 }
+		{ platform:iOS Simulator, arch:arm64, id:1C061CD6-2C99-4163-86D2-D2B6AC6DA5A7, OS:18.4, name:iPhone 16 Plus }
+		{ platform:iOS Simulator, arch:x86_64, id:1C061CD6-2C99-4163-86D2-D2B6AC6DA5A7, OS:18.4, name:iPhone 16 Plus }
+		{ platform:iOS Simulator, arch:arm64, id:AB684EAE-143F-44F8-B9D1-82FD244B37DE, OS:18.4, name:iPhone 16 Pro }
+		{ platform:iOS Simulator, arch:x86_64, id:AB684EAE-143F-44F8-B9D1-82FD244B37DE, OS:18.4, name:iPhone 16 Pro }
+		{ platform:iOS Simulator, arch:arm64, id:F6DC2FFB-CEE1-45B2-8F0A-DE140124BB1D, OS:18.4, name:iPhone 16 Pro Max }
+		{ platform:iOS Simulator, arch:x86_64, id:F6DC2FFB-CEE1-45B2-8F0A-DE140124BB1D, OS:18.4, name:iPhone 16 Pro Max }
+		{ platform:iOS Simulator, arch:arm64, id:363975BD-77CC-4781-BDEB-569720964E97, OS:18.4, name:iPhone 16e }
+		{ platform:iOS Simulator, arch:x86_64, id:363975BD-77CC-4781-BDEB-569720964E97, OS:18.4, name:iPhone 16e }
+
+	Ineligible destinations for the "Fitpal" scheme:
+		{ platform:macOS, arch:undefined_arch, variant:Designed for [iPad,iPhone], id:00008122-001C44422401401C, name:My Mac, error:Xcode doesn’t support My Mac’s macOS 15.2 (24C101).  }

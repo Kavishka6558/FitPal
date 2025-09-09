@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct HomeView: View {
-    let userName = "Kavishka Senavirathna"
+    let userName = "David Miller"
     @State private var showNotifications = false
     @State private var currentDate = Date()
     @State private var currentTime = Date()
@@ -23,105 +23,239 @@ struct HomeView: View {
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    // Header
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(getGreeting())
-                                .foregroundColor(.gray)
-                            Text(userName)
+            ZStack {
+                // Modern gradient background
+                LinearGradient(
+                    colors: [
+                        Color(.systemBlue).opacity(0.1),
+                        Color(.systemPurple).opacity(0.05),
+                        Color(.systemBackground)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+                
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 32) {
+                        // Modern Header
+                        HStack(alignment: .center) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(getGreeting())
+                                    .font(.largeTitle)
+                                    .fontWeight(.bold)
+                                    .foregroundStyle(
+                                        LinearGradient(
+                                            colors: [.primary, .blue],
+                                            startPoint: .leading,
+                                            endPoint: .trailing
+                                        )
+                                    )
+                                Text(userName)
+                                    .font(.title3)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            Spacer()
+                            
+                            HStack(spacing: 12) {
+                                // Profile Avatar with glassmorphism
+                                Button(action: {}) {
+                                    Circle()
+                                        .fill(.ultraThinMaterial)
+                                        .frame(width: 52, height: 52)
+                                        .overlay(
+                                            Circle()
+                                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                        )
+                                        .overlay(
+                                            Image(systemName: "person.crop.circle.fill")
+                                                .font(.title2)
+                                                .foregroundStyle(.blue.gradient)
+                                        )
+                                        .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
+                                }
+                                
+                                // Notification Button with glassmorphism
+                                Button(action: { showNotifications.toggle() }) {
+                                    Circle()
+                                        .fill(.ultraThinMaterial)
+                                        .frame(width: 52, height: 52)
+                                        .overlay(
+                                            Circle()
+                                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                        )
+                                        .overlay(
+                                            Image(systemName: "bell.badge")
+                                                .font(.title3)
+                                                .foregroundStyle(.orange.gradient)
+                                        )
+                                        .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
+                                }
+                            }
+                        }
+                    
+                        // Health Metrics Section
+                        VStack(alignment: .leading, spacing: 20) {
+                            HStack {
+                                Text("Health Metrics")
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                                
+                                Spacer()
+                                
+                                Button("View All") {
+                                    // Action for view all
+                                }
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                                .foregroundColor(.blue)
+                            }
+                            
+                            // Modern Health Tools Grid
+                            LazyVGrid(columns: [
+                                GridItem(.flexible(), spacing: 16),
+                                GridItem(.flexible(), spacing: 16)
+                            ], spacing: 20) {
+                                NavigationLink(destination: HeartRiskCheckerView()) {
+                                    ModernHealthCard(
+                                        title: "Heart Risk",
+                                        subtitle: "Monitor heart health",
+                                        iconName: "heart.fill",
+                                        gradient: [.red, .pink]
+                                    )
+                                }
+                                
+                                NavigationLink(destination: BloodSugarRiskView()) {
+                                    ModernHealthCard(
+                                        title: "Blood Sugar",
+                                        subtitle: "Track glucose levels",
+                                        iconName: "drop.fill",
+                                        gradient: [.blue, .cyan]
+                                    )
+                                }
+                                
+                                NavigationLink(destination: CholesterolTrackerView()) {
+                                    ModernHealthCard(
+                                        title: "Cholesterol",
+                                        subtitle: "Monitor cholesterol",
+                                        iconName: "pills.fill",
+                                        gradient: [.orange, .yellow]
+                                    )
+                                }
+                                
+                                NavigationLink(destination: BMICalculatorSimpleView()) {
+                                    ModernHealthCard(
+                                        title: "Body Weight",
+                                        subtitle: "Calculate BMI",
+                                        iconName: "figure.walk",
+                                        gradient: [.green, .mint]
+                                    )
+                                }
+                            }
+                        }
+                    
+                        // Featured Workout Section
+                        VStack(alignment: .leading, spacing: 20) {
+                            Text("Featured Workout")
                                 .font(.title2)
                                 .fontWeight(.bold)
-                        }
-                        Spacer()
-                        Button(action: { showNotifications.toggle() }) {
-                            Image(systemName: "bell")
-                                .font(.title2)
-                                .foregroundColor(.black)
-                        }
-                    }
-                    
-                    // Live Date and Time
-                    HStack {
-                        Text(dateFormatter.string(from: currentDate))
-                            .font(.headline)
-                        Spacer()
-                        Text(timeFormatter.string(from: currentTime))
-                            .font(.headline)
-                            .foregroundColor(.gray)
-                    }
-                    .onReceive(timer) { _ in
-                        self.currentTime = Date()
-                        self.currentDate = Date()
-                    }
-                    
-                    // Health Tools section
-                    Text("Health Tools")
-                        .font(.title3)
-                        .fontWeight(.bold)
-                    
-                    // Health Tools Grid
-                    LazyVGrid(columns: [
-                        GridItem(.flexible()),
-                        GridItem(.flexible())
-                    ], spacing: 16) {
-                        NavigationLink(destination: HeartRiskCheckerView()) {
-                            HealthToolCard(title: "Heart Risk\nChecker", iconName: "heart.fill", color: .red)
-                        }
-                        
-                        NavigationLink(destination: BloodSugarRiskView()) {
-                            HealthToolCard(title: "Blood Sugar Risk\nEstimator", iconName: "drop.fill", color: .blue)
-                        }
-                        
-                        NavigationLink(destination: CholesterolTrackerView()) {
-                            HealthToolCard(title: "Cholesterol\nTracker", iconName: "pills.fill", color: .green)
-                        }
-                        
-                        NavigationLink(destination: BMICalculatorSimpleView()) {
-                            HealthToolCard(title: "Body Weight\nChecker", iconName: "figure.walk", color: .orange)
-                        }
-                    }
-                    
-                    // Start Workout Button
-                    NavigationLink(destination: WorkoutView()) {
-                        HStack {
-                            VStack(alignment: .leading) {
-                                Text("Start Workout")
-                                    .font(.headline)
-                                    .foregroundColor(.white)
-                                Text("With posture correction")
-                                    .font(.subheadline)
-                                    .foregroundColor(.white.opacity(0.8))
+                            
+                            NavigationLink(destination: WorkoutView()) {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                                        .fill(
+                                            LinearGradient(
+                                                colors: [.purple, .blue, .cyan],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            )
+                                        )
+                                        .frame(height: 160)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                                                .stroke(.white.opacity(0.2), lineWidth: 1)
+                                        )
+                                        .shadow(color: .purple.opacity(0.3), radius: 20, x: 0, y: 10)
+                                    
+                                    HStack {
+                                        VStack(alignment: .leading, spacing: 12) {
+                                            VStack(alignment: .leading, spacing: 4) {
+                                                Text("Start Workout")
+                                                    .font(.title2)
+                                                    .fontWeight(.bold)
+                                                    .foregroundColor(.white)
+                                                Text("AI-powered posture correction")
+                                                    .font(.subheadline)
+                                                    .foregroundColor(.white.opacity(0.8))
+                                            }
+                                            
+                                            HStack {
+                                                Image(systemName: "clock")
+                                                    .foregroundColor(.white.opacity(0.8))
+                                                Text("30 min")
+                                                    .font(.caption)
+                                                    .fontWeight(.medium)
+                                                    .foregroundColor(.white.opacity(0.8))
+                                                
+                                                Image(systemName: "flame")
+                                                    .foregroundColor(.white.opacity(0.8))
+                                                    .padding(.leading, 8)
+                                                Text("250 cal")
+                                                    .font(.caption)
+                                                    .fontWeight(.medium)
+                                                    .foregroundColor(.white.opacity(0.8))
+                                            }
+                                            
+                                            Spacer()
+                                        }
+                                        
+                                        Spacer()
+                                        
+                                        // Modern workout icon
+                                        Circle()
+                                            .fill(.white.opacity(0.2))
+                                            .frame(width: 80, height: 80)
+                                            .overlay(
+                                                Image(systemName: "figure.strengthtraining.traditional")
+                                                    .font(.system(size: 40, weight: .medium))
+                                                    .foregroundColor(.white)
+                                            )
+                                    }
+                                    .padding(24)
+                                }
                             }
-                            Spacer()
-                            Image(systemName: "chevron.right.circle.fill")
-                                .foregroundColor(.white)
+                        }
+                    
+                        // Quick Access
+                        VStack(alignment: .leading, spacing: 20) {
+                            Text("Quick Access")
                                 .font(.title2)
+                                .fontWeight(.bold)
+                            
+                            HStack(spacing: 16) {
+                                NavigationLink(destination: WalkTrackingView()) {
+                                    ModernQuickActionCard(
+                                        title: "Track Fitness",
+                                        icon: "figure.walk",
+                                        gradient: [.blue, .purple]
+                                    )
+                                }
+                                
+                                NavigationLink(destination: HealthNewsView()) {
+                                    ModernQuickActionCard(
+                                        title: "Health News",
+                                        icon: "newspaper.fill",
+                                        gradient: [.orange, .red]
+                                    )
+                                }
+                            }
                         }
-                        .padding()
-                        .background(Color.blue)
-                        .cornerRadius(15)
                     }
-                    
-                    // Quick Actions
-                    Text("Quick Actions")
-                        .font(.title3)
-                        .fontWeight(.bold)
-                    
-                    HStack(spacing: 20) {
-                        NavigationLink(destination: WalkTrackingView()) {
-                            QuickActionButton(title: "Fitness", icon: "figure.walk", color: .blue)
-                        }
-                        NavigationLink(destination: WorkoutView()) {
-                            QuickActionButton(title: "Workouts", icon: "dumbbell", color: .green)
-                        }
-                        NavigationLink(destination: HealthNewsView()) {
-                            QuickActionButton(title: "Health News", icon: "newspaper", color: .purple)
-                        }
-                    }
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 32)
                 }
-                .padding()
             }
             .navigationBarHidden(true)
         }
@@ -141,54 +275,101 @@ struct HomeView: View {
     }
 }
 
-struct HealthToolCard: View {
+struct ModernHealthCard: View {
     let title: String
+    let subtitle: String
     let iconName: String
-    let color: Color
+    let gradient: [Color]
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: gradient,
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 44, height: 44)
+                    .overlay(
+                        Image(systemName: iconName)
+                            .font(.title3)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
+                    )
+                    .shadow(color: gradient[0].opacity(0.3), radius: 8, x: 0, y: 4)
+                
+                Spacer()
+                
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.secondary)
+            }
+            
+            VStack(alignment: .leading, spacing: 6) {
+                Text(title)
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+                
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity, minHeight: 120)
+        .padding(20)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .stroke(.white.opacity(0.2), lineWidth: 1)
+        )
+        .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 5)
+    }
+}
+
+struct ModernQuickActionCard: View {
+    let title: String
+    let icon: String
+    let gradient: [Color]
     
     var body: some View {
         VStack(spacing: 12) {
             Circle()
-                .fill(color.opacity(0.2))
-                .frame(width: 50, height: 50)
-                .overlay(
-                    Image(systemName: iconName)
-                        .font(.title2)
-                        .foregroundColor(color)
+                .fill(
+                    LinearGradient(
+                        colors: gradient,
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
                 )
-            
-            Text(title)
-                .font(.subheadline)
-                .fontWeight(.medium)
-                .multilineTextAlignment(.center)
-                .foregroundColor(.primary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(Color.gray.opacity(0.1))
-        .cornerRadius(12)
-    }
-}
-
-struct QuickActionButton: View {
-    let title: String
-    let icon: String
-    let color: Color
-    
-    var body: some View {
-        VStack {
-            Circle()
-                .fill(color.opacity(0.2))
-                .frame(width: 50, height: 50)
+                .frame(width: 56, height: 56)
                 .overlay(
                     Image(systemName: icon)
-                        .foregroundColor(color)
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
                 )
+                .shadow(color: gradient[0].opacity(0.4), radius: 12, x: 0, y: 6)
+            
             Text(title)
                 .font(.caption)
+                .fontWeight(.semibold)
+                .foregroundColor(.primary)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
+        .padding(.vertical, 20)
+        .padding(.horizontal, 16)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .stroke(.white.opacity(0.2), lineWidth: 1)
+        )
+        .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 5)
     }
 }
 

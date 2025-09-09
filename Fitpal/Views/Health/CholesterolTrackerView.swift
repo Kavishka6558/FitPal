@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct CholesterolTrackerView: View {
+    @Environment(\.dismiss) private var dismiss
     @State private var totalCholesterol: String = ""
     @State private var ldl: String = ""
     @State private var hdl: String = ""
@@ -22,178 +23,418 @@ struct CholesterolTrackerView: View {
     
     let genderOptions = ["Male", "Female"]
     
+    private var backgroundGradient: LinearGradient {
+        LinearGradient(
+            colors: [
+                Color(.systemRed).opacity(0.08),
+                Color(.systemOrange).opacity(0.05),
+                Color(.systemBackground)
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+    
+    private var headerView: some View {
+        VStack(spacing: 16) {
+            HStack {
+                Button(action: {
+                    dismiss()
+                }) {
+                    Circle()
+                        .fill(.ultraThinMaterial)
+                        .frame(width: 44, height: 44)
+                        .overlay(
+                            Image(systemName: "chevron.left")
+                                .font(.title3)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.primary)
+                        )
+                        .shadow(color: .black.opacity(0.1), radius: 6, x: 0, y: 3)
+                }
+                
+                Spacer()
+                
+                VStack(spacing: 2) {
+                    Text("Cholesterol Tracker")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.primary)
+                    
+                    Text("Cardiovascular Health")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                
+                Spacer()
+                
+                Circle()
+                    .fill(.clear)
+                    .frame(width: 44, height: 44)
+            }
+            
+            Text("Track and analyze your cholesterol levels to understand your cardiovascular risk.")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+        }
+    }
+    
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                Text("Cholesterol Tracker")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                
-                Text("Track and analyze your cholesterol levels to understand your cardiovascular risk.")
-                    .foregroundColor(.secondary)
-                
-                GroupBox(label: Text("Personal Information")
-                    .font(.headline)) {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Picker("Gender", selection: $gender) {
-                            ForEach(genderOptions, id: \.self) {
-                                Text($0)
-                            }
-                        }
-                        .pickerStyle(SegmentedPickerStyle())
-                        .padding(.vertical, 5)
-                        
-                        VStack(alignment: .leading, spacing: 5) {
-                            Text("Age")
-                            TextField("Years", text: $age)
-                                .keyboardType(.numberPad)
-                                .padding()
-                                .background(Color(UIColor.systemGray6))
-                                .cornerRadius(8)
-                        }
-                    }
-                    .padding(.horizontal, 5)
-                }
-                
-                GroupBox(label: Text("Lipid Profile")
-                    .font(.headline)) {
-                    VStack(alignment: .leading, spacing: 12) {
-                        VStack(alignment: .leading, spacing: 5) {
-                            Text("Total Cholesterol")
-                            TextField("mg/dL", text: $totalCholesterol)
-                                .keyboardType(.numberPad)
-                                .padding()
-                                .background(Color(UIColor.systemGray6))
-                                .cornerRadius(8)
-                        }
-                        
-                        VStack(alignment: .leading, spacing: 5) {
-                            Text("LDL Cholesterol (Bad)")
-                            TextField("mg/dL", text: $ldl)
-                                .keyboardType(.numberPad)
-                                .padding()
-                                .background(Color(UIColor.systemGray6))
-                                .cornerRadius(8)
-                        }
-                        
-                        VStack(alignment: .leading, spacing: 5) {
-                            Text("HDL Cholesterol (Good)")
-                            TextField("mg/dL", text: $hdl)
-                                .keyboardType(.numberPad)
-                                .padding()
-                                .background(Color(UIColor.systemGray6))
-                                .cornerRadius(8)
-                        }
-                        
-                        VStack(alignment: .leading, spacing: 5) {
-                            Text("Triglycerides")
-                            TextField("mg/dL", text: $triglycerides)
-                                .keyboardType(.numberPad)
-                                .padding()
-                                .background(Color(UIColor.systemGray6))
-                                .cornerRadius(8)
-                        }
-                    }
-                    .padding(.horizontal, 5)
-                }
-                
-                Button(action: analyzeResults) {
-                    Text("Analyze Results")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue)
-                        .cornerRadius(10)
-                }
-                .padding(.vertical)
-                
-                if showResults {
-                    GroupBox(label: Text("Analysis Results")
-                        .font(.headline)) {
-                        VStack(alignment: .leading, spacing: 15) {
-                            HStack {
-                                Text("Overall Status:")
-                                    .fontWeight(.medium)
-                                Spacer()
-                                Text(cholesterolResult.status)
+        ZStack {
+            backgroundGradient
+                .ignoresSafeArea()
+            
+            ScrollView {
+                VStack(spacing: 24) {
+                    headerView
+                    
+                    // Personal Information Section
+                    VStack(spacing: 20) {
+                        HStack(spacing: 12) {
+                            Circle()
+                                .fill(.red.opacity(0.2))
+                                .frame(width: 40, height: 40)
+                                .overlay(
+                                    Image(systemName: "person.circle")
+                                        .font(.title3)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.red)
+                                )
+                            
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Personal Information")
+                                    .font(.headline)
                                     .fontWeight(.bold)
-                                    .foregroundColor(statusColor(status: cholesterolResult.status))
+                                
+                                Text("Required for accurate assessment")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
                             }
-                            .padding(.vertical, 5)
                             
-                            Divider()
+                            Spacer()
+                        }
+                        
+                        VStack(spacing: 16) {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Gender")
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(.primary)
+                                
+                                Picker("Gender", selection: $gender) {
+                                    ForEach(genderOptions, id: \.self) {
+                                        Text($0)
+                                    }
+                                }
+                                .pickerStyle(SegmentedPickerStyle())
+                            }
                             
-                            Group {
-                                lipidResultRow(
-                                    label: "Total Cholesterol:",
+                            ModernInputField(
+                                title: "Age",
+                                subtitle: "Your current age in years",
+                                placeholder: "e.g., 35",
+                                text: $age,
+                                keyboardType: .numberPad,
+                                required: true
+                            )
+                        }
+                    }
+                    .padding(24)
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .stroke(.white.opacity(0.2), lineWidth: 1)
+                    )
+                    .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 5)
+                    
+                    // Lipid Profile Section
+                    VStack(spacing: 20) {
+                        HStack(spacing: 12) {
+                            Circle()
+                                .fill(.orange.opacity(0.2))
+                                .frame(width: 40, height: 40)
+                                .overlay(
+                                    Image(systemName: "drop.circle")
+                                        .font(.title3)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.orange)
+                                )
+                            
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Lipid Profile")
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+                                
+                                Text("Enter your latest lab results")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            Spacer()
+                        }
+                        
+                        VStack(spacing: 16) {
+                            ModernInputField(
+                                title: "Total Cholesterol",
+                                subtitle: "Complete cholesterol measurement (mg/dL)",
+                                placeholder: "e.g., 200",
+                                text: $totalCholesterol,
+                                keyboardType: .numberPad,
+                                required: true
+                            )
+                            
+                            ModernInputField(
+                                title: "LDL Cholesterol",
+                                subtitle: "Low-density lipoprotein (bad cholesterol) - mg/dL",
+                                placeholder: "e.g., 100",
+                                text: $ldl,
+                                keyboardType: .numberPad,
+                                required: true
+                            )
+                            
+                            ModernInputField(
+                                title: "HDL Cholesterol",
+                                subtitle: "High-density lipoprotein (good cholesterol) - mg/dL",
+                                placeholder: "e.g., 50",
+                                text: $hdl,
+                                keyboardType: .numberPad,
+                                required: true
+                            )
+                            
+                            ModernInputField(
+                                title: "Triglycerides",
+                                subtitle: "Blood fat levels - mg/dL",
+                                placeholder: "e.g., 150",
+                                text: $triglycerides,
+                                keyboardType: .numberPad,
+                                required: true
+                            )
+                        }
+                    }
+                    .padding(24)
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .stroke(.white.opacity(0.2), lineWidth: 1)
+                    )
+                    .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 5)
+                    
+                    // Analyze Button
+                    Button(action: analyzeResults) {
+                        HStack(spacing: 16) {
+                            Circle()
+                                .fill(.white.opacity(0.2))
+                                .frame(width: 56, height: 56)
+                                .overlay(
+                                    Image(systemName: "chart.line.uptrend.xyaxis.circle")
+                                        .font(.title2)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.white)
+                                )
+                            
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Analyze Results")
+                                    .font(.title3)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                
+                                Text("Get cholesterol assessment")
+                                    .font(.caption)
+                                    .foregroundColor(.white.opacity(0.8))
+                            }
+                            
+                            Spacer()
+                            
+                            Image(systemName: "chevron.right")
+                                .font(.title3)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white.opacity(0.7))
+                        }
+                        .padding(20)
+                        .background(
+                            LinearGradient(
+                                colors: [.red, .orange],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                .stroke(.white.opacity(0.2), lineWidth: 1)
+                        )
+                        .shadow(color: Color.red.opacity(0.3), radius: 15, x: 0, y: 8)
+                    }
+                    
+                    // Results Display
+                    if showResults {
+                        VStack(spacing: 20) {
+                            // Result Header
+                            HStack(spacing: 12) {
+                                Circle()
+                                    .fill(getStatusGradient(cholesterolResult.status))
+                                    .frame(width: 50, height: 50)
+                                    .overlay(
+                                        Image(systemName: "heart.text.square")
+                                            .font(.title3)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.white)
+                                    )
+                                
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Analysis Results")
+                                        .font(.title3)
+                                        .fontWeight(.bold)
+                                    
+                                    Text("Cholesterol Assessment")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                                
+                                Spacer()
+                            }
+                            
+                            // Overall Status Display
+                            HStack {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text("Overall Status")
+                                        .font(.headline)
+                                        .fontWeight(.medium)
+                                    
+                                    Text(cholesterolResult.status)
+                                        .font(.title2)
+                                        .fontWeight(.bold)
+                                        .foregroundStyle(getStatusGradient(cholesterolResult.status))
+                                }
+                                
+                                Spacer()
+                            }
+                            
+                            // Detailed Results
+                            VStack(spacing: 12) {
+                                
+                                ModernLipidCard(
+                                    title: "Total Cholesterol",
                                     value: cholesterolResult.analysis.totalCholesterol,
                                     unit: "mg/dL",
-                                    status: totalCholesterolStatus(cholesterolResult.analysis.totalCholesterol)
+                                    status: totalCholesterolStatus(cholesterolResult.analysis.totalCholesterol),
+                                    icon: "drop.circle",
+                                    color: .blue
                                 )
                                 
-                                lipidResultRow(
-                                    label: "LDL (Bad):",
+                                ModernLipidCard(
+                                    title: "LDL (Bad)",
                                     value: cholesterolResult.analysis.ldlLevel,
                                     unit: "mg/dL",
-                                    status: ldlStatus(cholesterolResult.analysis.ldlLevel)
+                                    status: ldlStatus(cholesterolResult.analysis.ldlLevel),
+                                    icon: "arrow.down.circle",
+                                    color: .red
                                 )
                                 
-                                lipidResultRow(
-                                    label: "HDL (Good):",
+                                ModernLipidCard(
+                                    title: "HDL (Good)",
                                     value: cholesterolResult.analysis.hdlLevel,
                                     unit: "mg/dL",
-                                    status: hdlStatus(cholesterolResult.analysis.hdlLevel, gender: gender)
+                                    status: hdlStatus(cholesterolResult.analysis.hdlLevel, gender: gender),
+                                    icon: "arrow.up.circle",
+                                    color: .green
                                 )
                                 
-                                lipidResultRow(
-                                    label: "Triglycerides:",
+                                ModernLipidCard(
+                                    title: "Triglycerides",
                                     value: cholesterolResult.analysis.triglyceridesLevel,
                                     unit: "mg/dL",
-                                    status: triglyceridesStatus(cholesterolResult.analysis.triglyceridesLevel)
+                                    status: triglyceridesStatus(cholesterolResult.analysis.triglyceridesLevel),
+                                    icon: "waveform.circle",
+                                    color: .orange
                                 )
                                 
-                                lipidResultRow(
-                                    label: "LDL/HDL Ratio:",
+                                ModernLipidCard(
+                                    title: "LDL/HDL Ratio",
                                     value: cholesterolResult.analysis.ldlHdlRatio,
                                     unit: "",
-                                    status: ratioStatus(cholesterolResult.analysis.ldlHdlRatio)
+                                    status: ratioStatus(cholesterolResult.analysis.ldlHdlRatio),
+                                    icon: "percent",
+                                    color: .purple,
+                                    isRatio: true
                                 )
                                 
-                                lipidResultRow(
-                                    label: "Non-HDL:",
+                                ModernLipidCard(
+                                    title: "Non-HDL",
                                     value: cholesterolResult.analysis.nonHdl,
                                     unit: "mg/dL",
-                                    status: nonHdlStatus(cholesterolResult.analysis.nonHdl)
+                                    status: nonHdlStatus(cholesterolResult.analysis.nonHdl),
+                                    icon: "minus.circle",
+                                    color: .indigo
                                 )
                             }
                             
-                            Divider()
-                            
-                            Text("Recommendations")
-                                .font(.headline)
-                                .padding(.top, 5)
-                            
-                            VStack(alignment: .leading, spacing: 10) {
-                                ForEach(getRecommendations(), id: \.self) { recommendation in
-                                    HStack(alignment: .top) {
-                                        Image(systemName: "checkmark.circle.fill")
-                                            .foregroundColor(.blue)
-                                            .padding(.top, 2)
-                                        Text(recommendation)
+                            // Recommendations Section
+                            VStack(alignment: .leading, spacing: 16) {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "lightbulb.circle.fill")
+                                        .font(.title3)
+                                        .foregroundColor(.yellow)
+                                    
+                                    Text("Recommendations")
+                                        .font(.headline)
+                                        .fontWeight(.bold)
+                                }
+                                
+                                VStack(spacing: 12) {
+                                    ForEach(getRecommendations(), id: \.self) { recommendation in
+                                        HStack(alignment: .top, spacing: 12) {
+                                            Circle()
+                                                .fill(.blue.opacity(0.2))
+                                                .frame(width: 24, height: 24)
+                                                .overlay(
+                                                    Image(systemName: "checkmark")
+                                                        .font(.caption)
+                                                        .fontWeight(.bold)
+                                                        .foregroundColor(.blue)
+                                                )
+                                                .padding(.top, 2)
+                                            
+                                            Text(recommendation)
+                                                .font(.subheadline)
+                                                .foregroundColor(.primary)
+                                                .multilineTextAlignment(.leading)
+                                            
+                                            Spacer()
+                                        }
+                                        .padding(.vertical, 4)
                                     }
                                 }
                             }
-                            .padding(.top, 5)
                         }
-                        .padding(.horizontal, 5)
+                        .padding(24)
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                .stroke(.white.opacity(0.2), lineWidth: 1)
+                        )
+                        .shadow(color: .black.opacity(0.05), radius: 15, x: 0, y: 8)
                     }
                 }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 30)
             }
-            .padding()
         }
-        .navigationTitle("Cholesterol Tracker")
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarHidden(true)
+    }
+    
+    private func getStatusGradient(_ status: String) -> LinearGradient {
+        switch status {
+        case "Optimal":
+            return LinearGradient(colors: [.mint, .green], startPoint: .leading, endPoint: .trailing)
+        case "Borderline":
+            return LinearGradient(colors: [.yellow, .orange], startPoint: .leading, endPoint: .trailing)
+        case "High Risk":
+            return LinearGradient(colors: [.orange, .red], startPoint: .leading, endPoint: .trailing)
+        default:
+            return LinearGradient(colors: [.gray, .secondary], startPoint: .leading, endPoint: .trailing)
+        }
     }
     
     private func analyzeResults() {
@@ -346,6 +587,81 @@ struct CholesterolTrackerView: View {
         return recommendations
     }
 }
+
+struct ModernLipidCard: View {
+    let title: String
+    let value: Double
+    let unit: String
+    let status: (String, Color)
+    let icon: String
+    let color: Color
+    let isRatio: Bool
+    
+    init(title: String, value: Double, unit: String, status: (String, Color), icon: String, color: Color, isRatio: Bool = false) {
+        self.title = title
+        self.value = value
+        self.unit = unit
+        self.status = status
+        self.icon = icon
+        self.color = color
+        self.isRatio = isRatio
+    }
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            Circle()
+                .fill(color.opacity(0.2))
+                .frame(width: 44, height: 44)
+                .overlay(
+                    Image(systemName: icon)
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                        .foregroundColor(color)
+                )
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .foregroundColor(.primary)
+                
+                Text(status.0)
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .foregroundColor(status.1)
+            }
+            
+            Spacer()
+            
+            VStack(alignment: .trailing, spacing: 2) {
+                HStack(alignment: .firstTextBaseline, spacing: 2) {
+                    Text(isRatio ? String(format: "%.2f", value) : "\(Int(value))")
+                        .font(.title3)
+                        .fontWeight(.bold)
+                        .foregroundColor(.primary)
+                    
+                    if !unit.isEmpty {
+                        Text(unit)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+        }
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(.ultraThinMaterial)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .stroke(status.1.opacity(0.3), lineWidth: 1)
+                )
+        )
+    }
+}
+
+
 
 struct CholesterolResult {
     let status: String

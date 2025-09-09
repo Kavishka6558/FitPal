@@ -1,0 +1,309 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		16108B4D2E51EEAE0024FA67 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 16108B4C2E51EEAE0024FA67 /* FirebaseAuth */; };
+		16108B4F2E51EEAE0024FA67 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 16108B4E2E51EEAE0024FA67 /* FirebaseCore */; };
+		16108B512E51EEAE0024FA67 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 16108B502E51EEAE0024FA67 /* FirebaseFirestore */; };
+		16108B532E51EEAE0024FA67 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 16108B522E51EEAE0024FA67 /* FirebaseStorage */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		1608FFB42E5048C000B62A78 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1608FF9E2E5048BF00B62A78 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1608FFA52E5048BF00B62A78;
+			remoteInfo = Fitpal;
+		};
+		1608FFBE2E5048C000B62A78 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1608FF9E2E5048BF00B62A78 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1608FFA52E5048BF00B62A78;
+			remoteInfo = Fitpal;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		1608FFA62E5048BF00B62A78 /* Fitpal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Fitpal.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1608FFB32E5048C000B62A78 /* FitpalTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FitpalTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		1608FFBD2E5048C000B62A78 /* FitpalUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FitpalUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		1608FFA82E5048BF00B62A78 /* Fitpal */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Fitpal;
+			sourceTree = "<group>";
+		};
+		1608FFB62E5048C000B62A78 /* FitpalTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = FitpalTests;
+			sourceTree = "<group>";
+		};
+		1608FFC02E5048C000B62A78 /* FitpalUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = FitpalUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		1608FFA32E5048BF00B62A78 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				16108B4F2E51EEAE0024FA67 /* FirebaseCore in Frameworks */,
+				16108B532E51EEAE0024FA67 /* FirebaseStorage in Frameworks */,
+				16108B4D2E51EEAE0024FA67 /* FirebaseAuth in Frameworks */,
+				16108B512E51EEAE0024FA67 /* FirebaseFirestore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1608FFB02E5048C000B62A78 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1608FFBA2E5048C000B62A78 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1608FF9D2E5048BF00B62A78 = {
+			isa = PBXGroup;
+			children = (
+				1608FFA82E5048BF00B62A78 /* Fitpal */,
+				1608FFB62E5048C000B62A78 /* FitpalTests */,
+				1608FFC02E5048C000B62A78 /* FitpalUITests */,
+				1608FFA72E5048BF00B62A78 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		1608FFA72E5048BF00B62A78 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1608FFA62E5048BF00B62A78 /* Fitpal.app */,
+				1608FFB32E5048C000B62A78 /* FitpalTests.xctest */,
+				1608FFBD2E5048C000B62A78 /* FitpalUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		1608FFA52E5048BF00B62A78 /* Fitpal */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1608FFC72E5048C000B62A78 /* Build configuration list for PBXNativeTarget "Fitpal" */;
+			buildPhases = (
+				1608FFA22E5048BF00B62A78 /* Sources */,
+				1608FFA32E5048BF00B62A78 /* Frameworks */,
+				1608FFA42E5048BF00B62A78 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				1608FFA82E5048BF00B62A78 /* Fitpal */,
+			);
+			name = Fitpal;
+			packageProductDependencies = (
+				16108B4C2E51EEAE0024FA67 /* FirebaseAuth */,
+				16108B4E2E51EEAE0024FA67 /* FirebaseCore */,
+				16108B502E51EEAE0024FA67 /* FirebaseFirestore */,
+				16108B522E51EEAE0024FA67 /* FirebaseStorage */,
+			);
+			productName = Fitpal;
+			productReference = 1608FFA62E5048BF00B62A78 /* Fitpal.app */;
+			productType = "com.apple.product-type.application";
+		};
+		1608FFB22E5048C000B62A78 /* FitpalTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1608FFCA2E5048C000B62A78 /* Build configuration list for PBXNativeTarget "FitpalTests" */;
+			buildPhases = (
+				1608FFAF2E5048C000B62A78 /* Sources */,
+				1608FFB02E5048C000B62A78 /* Frameworks */,
+				1608FFB12E5048C000B62A78 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1608FFB52E5048C000B62A78 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				1608FFB62E5048C000B62A78 /* FitpalTests */,
+			);
+			name = FitpalTests;
+			packageProductDependencies = (
+			);
+			productName = FitpalTests;
+			productReference = 1608FFB32E5048C000B62A78 /* FitpalTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		1608FFBC2E5048C000B62A78 /* FitpalUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1608FFCD2E5048C000B62A78 /* Build configuration list for PBXNativeTarget "FitpalUITests" */;
+			buildPhases = (
+				1608FFB92E5048C000B62A78 /* Sources */,
+				1608FFBA2E5048C000B62A78 /* Frameworks */,
+				1608FFBB2E5048C000B62A78 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1608FFBF2E5048C000B62A78 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				1608FFC02E5048C000B62A78 /* FitpalUITests */,
+			);
+			name = FitpalUITests;
+			packageProductDependencies = (
+			);
+			productName = FitpalUITests;
+			productReference = 1608FFBD2E5048C000B62A78 /* FitpalUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		1608FF9E2E5048BF00B62A78 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1630;
+				LastUpgradeCheck = 1630;
+				TargetAttributes = {
+					1608FFA52E5048BF00B62A78 = {
+						CreatedOnToolsVersion = 16.3;
+					};
+					1608FFB22E5048C000B62A78 = {
+						CreatedOnToolsVersion = 16.3;
+						TestTargetID = 1608FFA52E5048BF00B62A78;
+					};
+					1608FFBC2E5048C000B62A78 = {
+						CreatedOnToolsVersion = 16.3;
+						TestTargetID = 1608FFA52E5048BF00B62A78;
+					};
+				};
+			};
+			buildConfigurationList = 1608FFA12E5048BF00B62A78 /* Build configuration list for PBXProject "Fitpal" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 1608FF9D2E5048BF00B62A78;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				16108B4B2E51EEAE0024FA67 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 1608FFA72E5048BF00B62A78 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				1608FFA52E5048BF00B62A78 /* Fitpal */,
+				1608FFB22E5048C000B62A78 /* FitpalTests */,
+				1608FFBC2E5048C000B62A78 /* FitpalUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		1608FFA42E5048BF00B62A78 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1608FFB12E5048C000B62A78 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1608FFBB2E5048C000B62A78 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1608FFA22E5048BF00B62A78 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1608FFAF2E5048C000B62A78 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1608FFB92E5048C000B62A78 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		1608FFB52E5048C000B62A78 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1608FFA52E5048BF00B62A78 /* Fitpal */;
+			targetProxy = 1608FFB42E5048C000B62A78 /* PBXContainerItemProxy */;
+		};
+		1608FFBF2E5048C000B62A78 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1608FFA52E5048BF00B62A78 /* Fitpal */;
+			targetProxy = 1608FFBE2E5048C000B62A78 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		1608FFC52E5048C000B62A78 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
