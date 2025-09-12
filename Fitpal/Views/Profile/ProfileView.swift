@@ -10,123 +10,183 @@ struct ProfileView: View {
     
     var body: some View {
         NavigationView {
-            VStack(spacing: 24) {
-                // Profile Header
-                VStack(spacing: 16) {
-                    // Profile Image Placeholder
-                    Circle()
-                        .fill(Color.blue.opacity(0.2))
-                        .frame(width: 100, height: 100)
-                        .overlay(
-                            Image(systemName: "person.fill")
-                                .font(.system(size: 40))
-                                .foregroundColor(.blue)
-                        )
-                    
-                    // User Info
-                    VStack(spacing: 4) {
-                        Text(authService.currentUser?.displayName ?? "User")
-                            .font(.title2)
-                            .fontWeight(.bold)
+            ScrollView {
+                LazyVStack(spacing: 24) {
+                    // Modern Profile Header with Gradient
+                    VStack(spacing: 24) {
+                        // Profile Image with Gradient Border
+                        ZStack {
+                            Circle()
+                                .fill(
+                                    LinearGradient(
+                                        colors: [Color.blue, Color.purple],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .frame(width: 124, height: 124)
+                            
+                            Circle()
+                                .fill(Color(.systemBackground))
+                                .frame(width: 116, height: 116)
+                            
+                            Circle()
+                                .fill(
+                                    LinearGradient(
+                                        colors: [Color.blue.opacity(0.3), Color.purple.opacity(0.3)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .frame(width: 112, height: 112)
+                                .overlay(
+                                    Image(systemName: "person.fill")
+                                        .font(.system(size: 48, weight: .light))
+                                        .foregroundStyle(
+                                            LinearGradient(
+                                                colors: [Color.blue, Color.purple],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            )
+                                        )
+                                )
+                        }
                         
-                        Text(authService.currentUser?.email ?? "")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
+                        // User Info with Modern Typography
+                        VStack(spacing: 8) {
+                            Text(authService.currentUser?.displayName ?? "FitPal User")
+                                .font(.title)
+                                .fontWeight(.bold)
+                                .fontDesign(.rounded)
+                            
+                            Text(authService.currentUser?.email ?? "user@fitpal.com")
+                                .font(.callout)
+                                .foregroundStyle(.secondary)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(.regularMaterial, in: Capsule())
+                        }
                     }
-                }
-                .padding(.top, 40)
-                
-                // Profile Options
-                VStack(spacing: 16) {
-                    ProfileOptionRow(
-                        icon: "person.circle",
-                        title: "Edit Profile",
-                        action: {
-                            // Handle edit profile
-                        }
-                    )
+                    .padding(.top, 20)
                     
-                    ProfileOptionRow(
-                        icon: "bell.circle",
-                        title: "Notifications",
-                        action: {
-                            // Handle notifications
+                    // Modern Profile Options with Cards
+                    VStack(spacing: 16) {
+                        // Account Section
+                        ProfileSectionCard(title: "Account") {
+                            ModernProfileRow(
+                                icon: "person.crop.circle.fill",
+                                iconColor: .blue,
+                                title: "Edit Profile",
+                                subtitle: "Manage your personal information",
+                                action: { /* Handle edit profile */ }
+                            )
+                            
+                            ModernProfileRow(
+                                icon: "bell.circle.fill",
+                                iconColor: .orange,
+                                title: "Notifications",
+                                subtitle: "Customize your alerts and reminders",
+                                action: { /* Handle notifications */ }
+                            )
                         }
-                    )
-                    
-                    ProfileOptionRow(
-                        icon: "lock.circle",
-                        title: "Privacy & Security",
-                        action: {
-                            // Handle privacy settings
-                        }
-                    )
-                    
-                    // Biometric Settings
-                    BiometricSettingsRow(
-                        biometricType: biometricType,
-                        isEnabled: isBiometricEnabled,
-                        onToggle: { enabled in
-                            if enabled {
-                                enableBiometricAuthentication()
-                            } else {
-                                disableBiometricAuthentication()
+                        
+                        // Security Section
+                        ProfileSectionCard(title: "Security") {
+                            ModernProfileRow(
+                                icon: "lock.circle.fill",
+                                iconColor: .green,
+                                title: "Privacy & Security",
+                                subtitle: "Manage your privacy settings",
+                                action: { /* Handle privacy settings */ }
+                            )
+                            
+                            // Modern Biometric Settings
+                            if biometricType != .none {
+                                ModernBiometricRow(
+                                    biometricType: biometricType,
+                                    isEnabled: isBiometricEnabled,
+                                    onToggle: { enabled in
+                                        if enabled {
+                                            enableBiometricAuthentication()
+                                        } else {
+                                            disableBiometricAuthentication()
+                                        }
+                                    }
+                                )
                             }
                         }
-                    )
-                    
-                    ProfileOptionRow(
-                        icon: "questionmark.circle",
-                        title: "Help & Support",
-                        action: {
-                            // Handle help
-                        }
-                    )
-                    
-                    ProfileOptionRow(
-                        icon: "info.circle",
-                        title: "About",
-                        action: {
-                            // Handle about
-                        }
-                    )
-                    
-                    // Logout Button
-                    Button(action: {
-                        showingLogoutAlert = true
-                    }) {
-                        HStack {
-                            Image(systemName: "arrow.right.square")
-                                .font(.title2)
-                                .foregroundColor(.red)
+                        
+                        // Support Section
+                        ProfileSectionCard(title: "Support") {
+                            ModernProfileRow(
+                                icon: "questionmark.circle.fill",
+                                iconColor: .purple,
+                                title: "Help & Support",
+                                subtitle: "Get help and contact support",
+                                action: { /* Handle help */ }
+                            )
                             
-                            Text("Logout")
-                                .font(.headline)
-                                .foregroundColor(.red)
-                            
-                            Spacer()
+                            ModernProfileRow(
+                                icon: "info.circle.fill",
+                                iconColor: .cyan,
+                                title: "About FitPal",
+                                subtitle: "App version and information",
+                                action: { /* Handle about */ }
+                            )
                         }
-                        .padding()
-                        .background(Color.red.opacity(0.1))
-                        .cornerRadius(12)
+                        
+                        // Modern Logout Card
+                        Button(action: {
+                            showingLogoutAlert = true
+                        }) {
+                            HStack(spacing: 16) {
+                                Image(systemName: "arrow.right.square.fill")
+                                    .font(.title2)
+                                    .foregroundStyle(.red)
+                                
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Sign Out")
+                                        .font(.headline)
+                                        .fontWeight(.semibold)
+                                        .foregroundStyle(.red)
+                                    
+                                    Text("Sign out of your account")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                
+                                Spacer()
+                            }
+                            .padding()
+                            .background(.red.opacity(0.08), in: RoundedRectangle(cornerRadius: 16))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .stroke(.red.opacity(0.3), lineWidth: 1)
+                            )
+                        }
+                        .buttonStyle(.plain)
                     }
+                    .padding(.horizontal, 20)
+                    
+                    // Bottom spacing
+                    Rectangle()
+                        .fill(.clear)
+                        .frame(height: 100)
                 }
-                .padding(.horizontal)
-                
-                Spacer()
             }
+            .background(Color(.systemGroupedBackground))
             .navigationTitle("Profile")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
             .onAppear {
                 checkBiometricAvailability()
             }
-            .alert("Logout", isPresented: $showingLogoutAlert) {
+            .alert("Sign Out", isPresented: $showingLogoutAlert) {
                 Button("Cancel", role: .cancel) { }
-                Button("Logout", role: .destructive) {
+                Button("Sign Out", role: .destructive) {
                     authService.logout()
                 }
             } message: {
-                Text("Are you sure you want to logout?")
+                Text("Are you sure you want to sign out of your account?")
             }
         }
     }
@@ -150,6 +210,110 @@ struct ProfileView: View {
         isBiometricEnabled = false
     }
 }
+
+// MARK: - Modern Profile Components
+
+struct ProfileSectionCard<Content: View>: View {
+    let title: String
+    @ViewBuilder let content: Content
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(title)
+                .font(.headline)
+                .fontWeight(.semibold)
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 4)
+            
+            VStack(spacing: 12) {
+                content
+            }
+            .padding(16)
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(.quaternary, lineWidth: 1)
+            )
+        }
+    }
+}
+
+struct ModernProfileRow: View {
+    let icon: String
+    let iconColor: Color
+    let title: String
+    let subtitle: String
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 16) {
+                Image(systemName: icon)
+                    .font(.title2)
+                    .foregroundStyle(iconColor)
+                    .frame(width: 32, height: 32)
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(title)
+                        .font(.headline)
+                        .fontWeight(.medium)
+                        .foregroundStyle(.primary)
+                        .multilineTextAlignment(.leading)
+                    
+                    Text(subtitle)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.leading)
+                }
+                
+                Spacer()
+                
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.tertiary)
+            }
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+struct ModernBiometricRow: View {
+    let biometricType: BiometricType
+    let isEnabled: Bool
+    let onToggle: (Bool) -> Void
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            Image(systemName: biometricType == .faceID ? "faceid" : "touchid")
+                .font(.title2)
+                .foregroundStyle(.indigo)
+                .frame(width: 32, height: 32)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(biometricType == .faceID ? "Face ID" : "Touch ID")
+                    .font(.headline)
+                    .fontWeight(.medium)
+                    .foregroundStyle(.primary)
+                
+                Text("Use \(biometricType == .faceID ? "Face ID" : "Touch ID") for secure sign-in")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            
+            Spacer()
+            
+            Toggle("", isOn: Binding(
+                get: { isEnabled },
+                set: { onToggle($0) }
+            ))
+            .labelsHidden()
+            .tint(.indigo)
+        }
+    }
+}
+
+// MARK: - Legacy Components (Deprecated)
 
 struct ProfileOptionRow: View {
     let icon: String
@@ -219,6 +383,17 @@ struct BiometricSettingsRow: View {
 }
 
 #Preview {
-    ProfileView()
-        .environmentObject(AuthenticationService())
+    NavigationView {
+        ProfileView()
+            .environmentObject(AuthenticationService())
+    }
+    .preferredColorScheme(.light)
+}
+
+#Preview("Dark Mode") {
+    NavigationView {
+        ProfileView()
+            .environmentObject(AuthenticationService())
+    }
+    .preferredColorScheme(.dark)
 }

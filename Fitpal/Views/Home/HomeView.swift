@@ -3,6 +3,7 @@ import SwiftUI
 struct HomeView: View {
     let userName = "David Miller"
     @State private var showNotifications = false
+    @State private var showProfile = false
     @State private var currentDate = Date()
     @State private var currentTime = Date()
     
@@ -61,7 +62,11 @@ struct HomeView: View {
                             
                             HStack(spacing: 12) {
                                 // Profile Avatar with glassmorphism
-                                Button(action: {}) {
+                                Button(action: {
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        showProfile = true
+                                    }
+                                }) {
                                     Circle()
                                         .fill(.ultraThinMaterial)
                                         .frame(width: 52, height: 52)
@@ -76,6 +81,8 @@ struct HomeView: View {
                                         )
                                         .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
                                 }
+                                .scaleEffect(showProfile ? 0.95 : 1.0)
+                                .animation(.easeInOut(duration: 0.1), value: showProfile)
                                 
                                 // Notification Button with glassmorphism
                                 Button(action: { showNotifications.toggle() }) {
@@ -105,7 +112,7 @@ struct HomeView: View {
                                 
                                 Spacer()
                                 
-                                Button("View All") {
+                                Button("") {
                                     // Action for view all
                                 }
                                 .font(.subheadline)
@@ -258,6 +265,9 @@ struct HomeView: View {
                 }
             }
             .navigationBarHidden(true)
+        }
+        .sheet(isPresented: $showProfile) {
+            ProfileView()
         }
     }
     

@@ -11,16 +11,128 @@ struct RoutinesView: View {
     let workoutOptions = ["Pull Day", "Push Day", "Cardio"]
     let workoutExercises = ["Push-ups", "Pull-ups", "Squats", "Deadlifts", "Bench Press", "Shoulder Press", "Bicep Curls", "Tricep Dips", "Lunges", "Plank"]
     
-    private var backgroundGradient: LinearGradient {
-        LinearGradient(
-            colors: [
-                Color(.systemBlue).opacity(0.08),
-                Color(.systemPurple).opacity(0.05),
-                Color(.systemBackground)
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
+    private var modernBackgroundGradient: some View {
+        ZStack {
+            // Base gradient
+            LinearGradient(
+                colors: [
+                    Color(.systemIndigo).opacity(0.15),
+                    Color(.systemBlue).opacity(0.12),
+                    Color(.systemPurple).opacity(0.08),
+                    Color.clear
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            
+            // Accent overlay
+            RadialGradient(
+                colors: [
+                    Color.cyan.opacity(0.1),
+                    Color.clear
+                ],
+                center: .topTrailing,
+                startRadius: 50,
+                endRadius: 300
+            )
+            
+            // Bottom accent
+            RadialGradient(
+                colors: [
+                    Color.pink.opacity(0.08),
+                    Color.clear
+                ],
+                center: .bottomLeading,
+                startRadius: 80,
+                endRadius: 250
+            )
+        }
+        .ignoresSafeArea()
+    }
+    
+    private var modernHeaderView: some View {
+        VStack(spacing: 20) {
+            HStack {
+                Button(action: {
+                    dismiss()
+                }) {
+                    ZStack {
+                        Circle()
+                            .fill(.ultraThinMaterial)
+                            .frame(width: 50, height: 50)
+                            .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 5)
+                        
+                        Circle()
+                            .stroke(
+                                LinearGradient(
+                                    colors: [.white.opacity(0.3), .clear],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 1
+                            )
+                            .frame(width: 50, height: 50)
+                        
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 18, weight: .bold, design: .rounded))
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [.primary, .secondary],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                    }
+                }
+                
+                Spacer()
+                
+                VStack(spacing: 4) {
+                    Text("Workout Builder")
+                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [.primary, .secondary],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                    
+                    Text("Craft Your Routine")
+                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                        .foregroundColor(.secondary)
+                }
+                
+                Spacer()
+                
+                // Floating accent decoration
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [.blue.opacity(0.2), .purple.opacity(0.1)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 50, height: 50)
+                        .blur(radius: 8)
+                    
+                    Image(systemName: "star.fill")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [.yellow, .orange],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .shadow(color: .yellow.opacity(0.4), radius: 8, x: 0, y: 2)
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 10)
+        }
     }
     
     private var headerView: some View {
@@ -65,38 +177,52 @@ struct RoutinesView: View {
     
     var body: some View {
         ZStack {
-            backgroundGradient
+            modernBackgroundGradient
                 .ignoresSafeArea()
             
             ScrollView {
-                VStack(spacing: 20) {
-                    headerView
-                        .padding(.horizontal, 16)
+                VStack(spacing: 32) {
+                    modernHeaderView
+                        .padding(.horizontal, 4)
                     
-                    // Hero Section
-                    VStack(spacing: 12) {
-                        VStack(spacing: 6) {
-                            Text("Create New Workout")
-                                .font(.title2)
-                                .fontWeight(.bold)
-                                .foregroundStyle(
-                                    LinearGradient(
-                                        colors: [.blue, .purple],
-                                        startPoint: .leading,
-                                        endPoint: .trailing
+                    // Enhanced Hero Section
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Create Your")
+                                    .font(.system(size: 36, weight: .light, design: .rounded))
+                                    .foregroundStyle(
+                                        LinearGradient(
+                                            colors: [.primary.opacity(0.9), .secondary],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
                                     )
-                                )
-                            
-                            Text("Set up your workout details")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                                .multilineTextAlignment(.center)
+                                
+                                Text("Perfect Routine")
+                                    .font(.system(size: 36, weight: .black, design: .rounded))
+                                    .foregroundStyle(
+                                        LinearGradient(
+                                            colors: [.cyan, .blue, .purple, .pink],
+                                            startPoint: .leading,
+                                            endPoint: .trailing
+                                        )
+                                    )
+                                    .shadow(color: .blue.opacity(0.3), radius: 10, x: 0, y: 5)
+                            }
+                            Spacer()
                         }
+                        
+                        Text("Customize your workout with precision and style")
+                            .font(.system(size: 16, weight: .medium, design: .rounded))
+                            .foregroundColor(.secondary)
+                            .padding(.top, 4)
                     }
-                    .padding(.horizontal, 16)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 20)
                     
                     // Workout Configuration Section
-                    VStack(spacing: 16) {
+                    VStack(spacing: 20) {
                         // Workout Name Selection
                         ModernPickerCard(
                             title: "Workout Type",
@@ -115,8 +241,8 @@ struct RoutinesView: View {
                             icon: "figure.strengthtraining.functional"
                         )
                         
-                        // Sets and Reps Configuration
-                        HStack(spacing: 12) {
+                        // Sets and Reps Configuration with Modern Layout
+                        HStack(spacing: 16) {
                             ModernStepperCard(
                                 title: "Sets",
                                 subtitle: "Number of sets",
@@ -127,7 +253,7 @@ struct RoutinesView: View {
                             .frame(maxWidth: .infinity)
                             
                             ModernStepperCard(
-                                title: "Reps",
+                                title: "Reps", 
                                 subtitle: "Repetitions per set",
                                 value: $numberOfReps,
                                 range: 1...50,
@@ -136,62 +262,105 @@ struct RoutinesView: View {
                             .frame(maxWidth: .infinity)
                         }
                     }
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, 20)
                     
-                    // Action Buttons
-                    VStack(spacing: 12) {
-                        // Save Button
+                    // Spacer for better visual balance
+                    Spacer(minLength: 20)
+                    
+                    // Enhanced Action Buttons
+                    VStack(spacing: 16) {
+                        // Save Button with Enhanced Design
                         Button(action: saveWorkout) {
-                            HStack(spacing: 12) {
-                                Image(systemName: "checkmark")
-                                    .font(.headline)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.white)
+                            HStack(spacing: 16) {
+                                ZStack {
+                                    Circle()
+                                        .fill(
+                                            LinearGradient(
+                                                colors: [.white.opacity(0.2), .white.opacity(0.1)],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            )
+                                        )
+                                        .frame(width: 48, height: 48)
+                                    
+                                    Image(systemName: "checkmark")
+                                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                                        .foregroundColor(.white)
+                                }
                                 
-                                VStack(alignment: .leading, spacing: 1) {
+                                VStack(alignment: .leading, spacing: 2) {
                                     Text("Save Workout")
-                                        .font(.headline)
-                                        .fontWeight(.bold)
+                                        .font(.system(size: 18, weight: .bold, design: .rounded))
                                         .foregroundColor(.white)
                                     
-                                    Text("Add to routine")
-                                        .font(.caption2)
+                                    Text("Add to your routine collection")
+                                        .font(.system(size: 13, weight: .medium, design: .rounded))
                                         .foregroundColor(.white.opacity(0.8))
                                 }
                                 
                                 Spacer()
                                 
-                                Image(systemName: "chevron.right")
-                                    .font(.subheadline)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.white.opacity(0.7))
+                                Image(systemName: "arrow.right")
+                                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                                    .foregroundColor(.white.opacity(0.8))
                             }
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 14)
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 18)
                             .background(
-                                LinearGradient(
-                                    colors: [.blue, .purple],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
+                                ZStack {
+                                    LinearGradient(
+                                        colors: [.cyan, .blue, .purple],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                    
+                                    // Subtle overlay for depth
+                                    LinearGradient(
+                                        colors: [.white.opacity(0.1), .clear, .black.opacity(0.1)],
+                                        startPoint: .top,
+                                        endPoint: .bottom
+                                    )
+                                }
                             )
-                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                            .shadow(color: Color.blue.opacity(0.2), radius: 8, x: 0, y: 4)
+                            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                    .stroke(
+                                        LinearGradient(
+                                            colors: [.white.opacity(0.3), .clear],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        ),
+                                        lineWidth: 1
+                                    )
+                            )
+                            .shadow(color: .blue.opacity(0.4), radius: 20, x: 0, y: 10)
+                            .shadow(color: .purple.opacity(0.3), radius: 40, x: 0, y: 20)
                         }
                         
-                        // Cancel Button
+                        // Cancel Button with Modern Style
                         Button(action: {
                             dismiss()
                         }) {
-                            Text("Cancel")
-                                .font(.subheadline)
-                                .fontWeight(.medium)
-                                .foregroundColor(.secondary)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 12)
+                            HStack {
+                                Text("Cancel")
+                                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                                    .foregroundColor(.secondary)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(.ultraThinMaterial)
+                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                    .stroke(.white.opacity(0.1), lineWidth: 1)
+                            )
                         }
                     }
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, 20)
+                    
+                    // Spacer for better visual balance
+                    Spacer(minLength: 20)
                 }
                 .padding(.bottom, 16)
             }
@@ -212,7 +381,7 @@ struct RoutinesView: View {
     }
 }
 
-// MARK: - Modern Components
+// MARK: - Enhanced Modern Components
 struct ModernPickerCard: View {
     let title: String
     let subtitle: String
@@ -221,74 +390,155 @@ struct ModernPickerCard: View {
     let icon: String
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 12) {
-                Image(systemName: icon)
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [.blue, .purple],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
+        VStack(alignment: .leading, spacing: 16) {
+            // Enhanced Header with Modern Icon
+            HStack(spacing: 16) {
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [.blue.opacity(0.1), .purple.opacity(0.08)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
                         )
-                    )
-                    .frame(width: 32, height: 32)
+                        .frame(width: 48, height: 48)
+                    
+                    Image(systemName: icon)
+                        .font(.system(size: 20, weight: .semibold, design: .rounded))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [.blue, .purple],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                }
                 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
-                        .font(.headline)
-                        .fontWeight(.semibold)
+                        .font(.system(size: 18, weight: .bold, design: .rounded))
                         .foregroundColor(.primary)
                     
                     Text(subtitle)
-                        .font(.caption)
+                        .font(.system(size: 14, weight: .medium, design: .rounded))
                         .foregroundColor(.secondary)
                 }
                 
                 Spacer()
+                
+                // Subtle accent indicator
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [.green.opacity(0.8), .mint.opacity(0.6)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 8, height: 8)
+                    .shadow(color: .green.opacity(0.4), radius: 4, x: 0, y: 2)
             }
             
+            // Enhanced Options Selector
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
+                HStack(spacing: 12) {
                     ForEach(options, id: \.self) { option in
                         Button(action: {
-                            selection = option
+                            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                                selection = option
+                            }
                         }) {
-                            Text(option)
-                                .font(.caption)
-                                .fontWeight(selection == option ? .bold : .medium)
-                                .foregroundColor(selection == option ? .white : .primary)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 8)
-                                .background(
-                                    Group {
-                                        if selection == option {
-                                            LinearGradient(
-                                                colors: [.blue, .purple],
-                                                startPoint: .leading,
-                                                endPoint: .trailing
-                                            )
-                                        } else {
-                                            Color.gray.opacity(0.1)
-                                        }
-                                    }
-                                )
-                                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                            optionButtonView(option: option)
                         }
                         .buttonStyle(PlainButtonStyle())
                     }
                 }
-                .padding(.horizontal, 16)
+                .padding(.horizontal, 20)
             }
         }
-        .padding(16)
-        .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(.white.opacity(0.2), lineWidth: 1)
+        .padding(20)
+        .background(
+            ZStack {
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .fill(Material.ultraThinMaterial)
+                
+                // Subtle gradient overlay
+                LinearGradient(
+                    colors: [.white.opacity(0.1), .clear, .black.opacity(0.02)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            }
         )
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .stroke(
+                    LinearGradient(
+                        colors: [.white.opacity(0.2), .clear],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1
+                )
+        )
+        .shadow(color: .black.opacity(0.08), radius: 12, x: 0, y: 6)
+        .shadow(color: .black.opacity(0.04), radius: 24, x: 0, y: 12)
+    }
+    
+    // Simplified button view to avoid complex expressions
+    @ViewBuilder
+    private func optionButtonView(option: String) -> some View {
+        let isSelected = selection == option
+        
+        VStack(spacing: 6) {
+            Text(option)
+                .font(.system(size: 14, weight: isSelected ? .bold : .semibold, design: .rounded))
+                .foregroundColor(isSelected ? .white : .primary)
+                .multilineTextAlignment(.center)
+            
+            if isSelected {
+                Circle()
+                    .fill(.white.opacity(0.8))
+                    .frame(width: 4, height: 4)
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(buttonBackground(isSelected: isSelected))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(buttonOverlay(isSelected: isSelected))
+        .shadow(
+            color: isSelected ? .blue.opacity(0.3) : .clear,
+            radius: isSelected ? 8 : 0,
+            x: 0, y: isSelected ? 4 : 0
+        )
+        .scaleEffect(isSelected ? 1.02 : 1.0)
+    }
+    
+    @ViewBuilder
+    private func buttonBackground(isSelected: Bool) -> some View {
+        if isSelected {
+            LinearGradient(
+                colors: [.blue, .purple, .pink],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+        } else {
+            Color.gray.opacity(0.08)
+        }
+    }
+    
+    @ViewBuilder
+    private func buttonOverlay(isSelected: Bool) -> some View {
+        RoundedRectangle(cornerRadius: 16, style: .continuous)
+            .stroke(
+                isSelected ? 
+                LinearGradient(colors: [.white.opacity(0.3), .clear], startPoint: .top, endPoint: .bottom) :
+                LinearGradient(colors: [.clear], startPoint: .top, endPoint: .bottom),
+                lineWidth: 1
+            )
     }
 }
 
@@ -300,89 +550,149 @@ struct ModernStepperCard: View {
     let icon: String
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 10) {
-                Image(systemName: icon)
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [.blue, .purple],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
+        VStack(alignment: .leading, spacing: 16) {
+            // Enhanced Header
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [.orange.opacity(0.1), .pink.opacity(0.08)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
                         )
-                    )
-                    .frame(width: 28, height: 28)
+                        .frame(width: 40, height: 40)
+                    
+                    Image(systemName: icon)
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [.orange, .pink],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                }
                 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 3) {
                     Text(title)
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
                         .foregroundColor(.primary)
                     
                     Text(subtitle)
-                        .font(.caption2)
+                        .font(.system(size: 12, weight: .medium, design: .rounded))
                         .foregroundColor(.secondary)
                 }
                 
                 Spacer()
             }
             
-            HStack(spacing: 8) {
+            // Enhanced Stepper Control
+            HStack(spacing: 0) {
+                // Minus Button
                 Button(action: {
                     if value > range.lowerBound {
-                        value -= 1
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            value -= 1
+                        }
                     }
                 }) {
                     Image(systemName: "minus")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
                         .foregroundColor(.white)
-                        .frame(width: 28, height: 28)
-                        .background(value > range.lowerBound ? Color.blue : Color.gray.opacity(0.3))
-                        .cornerRadius(6)
+                        .frame(width: 36, height: 36)
+                        .background(
+                            value > range.lowerBound ? 
+                            LinearGradient(colors: [.red, .pink], startPoint: .topLeading, endPoint: .bottomTrailing) :
+                            LinearGradient(colors: [.gray.opacity(0.3)], startPoint: .top, endPoint: .bottom)
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                        .shadow(color: value > range.lowerBound ? .red.opacity(0.3) : .clear, radius: 4, x: 0, y: 2)
                 }
                 .disabled(value <= range.lowerBound)
                 
                 Spacer()
                 
-                Text("\(value)")
-                    .font(.headline)
-                    .fontWeight(.bold)
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [.blue, .purple],
-                            startPoint: .leading,
-                            endPoint: .trailing
+                // Value Display with Enhanced Typography
+                VStack(spacing: 2) {
+                    Text("\(value)")
+                        .font(.system(size: 28, weight: .black, design: .rounded))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [.blue, .purple, .pink],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
                         )
-                    )
-                    .frame(minWidth: 32)
+                        .shadow(color: .blue.opacity(0.2), radius: 4, x: 0, y: 2)
+                    
+                    Rectangle()
+                        .fill(
+                            LinearGradient(
+                                colors: [.blue.opacity(0.6), .purple.opacity(0.4)],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .frame(width: 32, height: 2)
+                        .clipShape(Capsule())
+                }
                 
                 Spacer()
                 
+                // Plus Button  
                 Button(action: {
                     if value < range.upperBound {
-                        value += 1
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            value += 1
+                        }
                     }
                 }) {
                     Image(systemName: "plus")
-                        .font(.caption)
-                        .fontWeight(.semibold)
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
                         .foregroundColor(.white)
-                        .frame(width: 28, height: 28)
-                        .background(value < range.upperBound ? Color.blue : Color.gray.opacity(0.3))
-                        .cornerRadius(6)
+                        .frame(width: 36, height: 36)
+                        .background(
+                            value < range.upperBound ? 
+                            LinearGradient(colors: [.green, .mint], startPoint: .topLeading, endPoint: .bottomTrailing) :
+                            LinearGradient(colors: [.gray.opacity(0.3)], startPoint: .top, endPoint: .bottom)
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                        .shadow(color: value < range.upperBound ? .green.opacity(0.3) : .clear, radius: 4, x: 0, y: 2)
                 }
                 .disabled(value >= range.upperBound)
             }
+            .padding(.horizontal, 4)
         }
-        .padding(10)
-        .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .stroke(.white.opacity(0.2), lineWidth: 1)
+        .padding(16)
+        .background(
+            ZStack {
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .fill(Material.ultraThinMaterial)
+                
+                // Subtle inner glow
+                LinearGradient(
+                    colors: [.white.opacity(0.08), .clear, .black.opacity(0.02)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            }
         )
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(
+                    LinearGradient(
+                        colors: [.white.opacity(0.15), .clear],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1
+                )
+        )
+        .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: 4)
+        .shadow(color: .black.opacity(0.03), radius: 16, x: 0, y: 8)
     }
 }
 

@@ -3,7 +3,7 @@ import Foundation
 import LocalAuthentication
 import FirebaseAuth
 
-// Login View
+// Modern Login View with glass-morphism design
 struct LoginView: View {
     @Binding var authState: AuthState
     @EnvironmentObject private var authService: AuthenticationService
@@ -11,6 +11,8 @@ struct LoginView: View {
     @State private var password = ""
     @State private var navigateToSignup = false
     @State private var showForgotPassword = false
+    @State private var isEmailFocused = false
+    @State private var isPasswordFocused = false
     
     // Computed properties for complex conditions
     private var isBiometricButtonDisabled: Bool {
@@ -93,265 +95,150 @@ struct LoginView: View {
     }
     
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                // Main content
-                VStack(spacing: 32) {
-                    // Title
-                    VStack(alignment: .leading, spacing: 8) {
-                        HStack {
-                            Text("Login to Your")
-                                .font(.system(size: 32, weight: .bold))
-                                .foregroundColor(.black)
-                            Spacer()
-                        }
-                        HStack {
-                            Text("Account")
-                                .font(.system(size: 32, weight: .bold))
-                                .foregroundColor(.blue)
-                            Spacer()
-                        }
-                    }
-                    .padding(.top, 60)
+        GeometryReader { geometry in
+            NavigationStack {
+                ZStack {
+                    // Modern gradient background
+                    LinearGradient(
+                        colors: [
+                            Color(.systemBackground),
+                            Color(.systemGray6),
+                            Color(.systemGray5)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    .ignoresSafeArea()
                     
-                    // Error message
-                    if let errorMessage = authService.errorMessage {
-                        Text(errorMessage)
-                            .font(.system(size: 14))
-                            .foregroundColor(.red)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
-                            .background(Color.red.opacity(0.1))
-                            .cornerRadius(8)
-                    }
-                    
-                    // Face ID Quick Login Button - Always visible at top
-                    
-                    Button(action: handleBiometricLogin) {
-                        HStack(spacing: 12) {
-                            biometricIcon
-                                .font(.system(size: 28))
-                                .foregroundColor(.white)
-                            
-                            Text("Quick Login with Biometrics")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(.white)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(
+                    // Floating gradient orbs for depth
+                    Circle()
+                        .fill(
                             LinearGradient(
-                                gradient: Gradient(colors: [Color.blue.opacity(0.8), Color.blue]),
-                                startPoint: .leading,
-                                endPoint: .trailing
+                                colors: [Color.blue.opacity(0.1), Color.purple.opacity(0.1)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
                             )
                         )
-                        .cornerRadius(16)
-                        .shadow(color: Color.blue.opacity(0.3), radius: 8, x: 0, y: 4)
-                        .padding(.bottom, 16)
-                    }
-                    .disabled(isBiometricButtonDisabled)
-                    .opacity(isBiometricButtonDisabled ? 0.4 : 1.0)
+                        .frame(width: 200, height: 200)
+                        .blur(radius: 20)
+                        .offset(x: -100, y: -200)
                     
-                    #if DEBUG
-                    Button("Debug Biometrics") {
-                        print("Biometric type: \(authService.biometricService.biometricType)")
-                        print("Is enabled: \(authService.biometricService.isBiometricEnabled)")
-                    }
-                    .font(.caption)
-                    .padding(.bottom, 8)
-                    #endif
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.green.opacity(0.1), Color.blue.opacity(0.1)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 150, height: 150)
+                        .blur(radius: 15)
+                        .offset(x: 150, y: 100)
                     
-                    // Input fields
-                    VStack(spacing: 16) {
-                        // Email field
-                        VStack(alignment: .leading, spacing: 8) {
-                            TextField("Email", text: $email)
-                                .font(.system(size: 16))
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 16)
-                                .background(Color.gray.opacity(0.1))
-                                .cornerRadius(12)
-                                .autocapitalization(.none)
-                                .keyboardType(.emailAddress)
-                                .disabled(authService.isLoading)
-                        }
-                        
-                        // Password field
-                        VStack(alignment: .leading, spacing: 8) {
-                            SecureField("Password", text: $password)
-                                .font(.system(size: 16))
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 16)
-                                .background(Color.gray.opacity(0.1))
-                                .cornerRadius(12)
-                                .disabled(authService.isLoading)
-                        }
-                    }
-                    
-                    // Forgot password
-                    HStack {
-                        Spacer()
-                        Button(action: {
-                            showForgotPassword = true
-                        }) {
-                            Text("Forgot Password")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(.gray)
-                                .underline()
-                        }
-                        .disabled(authService.isLoading)
-                    }
-                    
-                    // Biometric Authentication (Face ID/Touch ID)
-                    if authService.biometricService.biometricType != .none {
-                        VStack(spacing: 16) {
-                            // Divider with "OR"
-                            HStack {
-                                Rectangle()
-                                    .fill(Color.gray.opacity(0.3))
-                                    .frame(height: 1)
-                                
-                                Text("OR")
-                                    .font(.system(size: 14, weight: .medium))
-                                    .foregroundColor(.gray)
-                                    .padding(.horizontal, 16)
-                                
-                                Rectangle()
-                                    .fill(Color.gray.opacity(0.3))
-                                    .frame(height: 1)
-                            }
-                            
-                            // Main Scan Face ID Button
-                            Button(action: handleBiometricLogin) {
-                                HStack(spacing: 16) {
-                                    biometricScanButtonIcon
+                    ScrollView {
+                        VStack(spacing: 0) {
+                            // Header section
+                            VStack(spacing: 24) {
+                                // App logo/icon placeholder
+                                ZStack {
+                                    Circle()
+                                        .fill(
+                                            LinearGradient(
+                                                colors: [Color.blue, Color.purple],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            )
+                                        )
+                                        .frame(width: 80, height: 80)
+                                        .shadow(color: Color.blue.opacity(0.3), radius: 10, x: 0, y: 5)
                                     
-                                    Text(biometricText)
-                                        .font(.system(size: 18, weight: .semibold))
+                                    Image(systemName: "figure.run.circle.fill")
+                                        .font(.system(size: 40, weight: .medium))
+                                        .foregroundStyle(.white)
                                 }
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 18)
-                                .background(
-                                    LinearGradient(
-                                        gradient: Gradient(colors: [Color.green, Color.green.opacity(0.8)]),
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    )
-                                )
-                                .cornerRadius(25)
-                                .shadow(color: Color.green.opacity(0.3), radius: 8, x: 0, y: 4)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 25)
-                                        .stroke(Color.white, lineWidth: 1)
-                                )
+                                .padding(.top, max(0, geometry.safeAreaInsets.top))
+                                
+                                // Modern title
+                                VStack(spacing: 8) {
+                                    Text("Welcome Back")
+                                        .font(.system(size: 32, weight: .bold, design: .rounded))
+                                        .foregroundStyle(
+                                            LinearGradient(
+                                                colors: [Color.primary, Color.blue],
+                                                startPoint: .leading,
+                                                endPoint: .trailing
+                                            )
+                                        )
+                                    
+                                    Text("Sign in to continue your fitness journey")
+                                        .font(.system(size: 16, weight: .medium))
+                                        .foregroundColor(.secondary)
+                                        .multilineTextAlignment(.center)
+                                }
                             }
-                            .disabled(isLoadingState)
-                            .opacity(isLoadingState ? 0.6 : 1.0)
+                            .padding(.top, 40)
+                            .padding(.bottom, 40)
                             
-                            // Biometric login button
-                            if authService.biometricService.isBiometricEnabled {
-                                Button(action: handleBiometricLogin) {
-                                    HStack {
-                                        secondaryBiometricIcon
-                                        
-                                        Text(biometricSignInText)
-                                    }
-                                    .font(.system(size: 16, weight: .semibold))
-                                    .foregroundColor(.blue)
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 16)
-                                    .background(Color.blue.opacity(0.1))
-                                    .cornerRadius(25)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 25)
-                                            .stroke(Color.blue, lineWidth: 1)
-                                    )
-                                }
-                                .disabled(isLoadingState)
-                                .opacity(isLoadingState ? 0.6 : 1.0)
-                            } else {
-                                // Setup biometric button (only show if user has credentials)
-                                if !email.isEmpty && !password.isEmpty {
-                                    Button(action: {
-                                        Task {
-                                            let success = await authService.enableBiometricLogin(email: email, password: password)
-                                            if success {
-                                                // Optionally show success message
-                                            }
-                                        }
-                                    }) {
-                                        HStack {
-                                            Image(systemName: authService.biometricService.biometricIcon)
-                                                .font(.system(size: 16))
-                                            Text("Enable \(authService.biometricService.biometricTypeString)")
-                                        }
-                                        .font(.system(size: 14, weight: .medium))
-                                        .foregroundColor(.gray)
-                                        .padding(.vertical, 12)
-                                    }
-                                    .disabled(authService.isLoading)
-                                }
+                            // Error message with modern styling
+                            if let errorMessage = authService.errorMessage {
+                                ErrorMessageCard(message: errorMessage)
+                                    .padding(.horizontal, 24)
+                                    .padding(.bottom, 24)
                             }
+                            
+                            // Login form card
+                            LoginFormCard(
+                                email: $email,
+                                password: $password,
+                                isEmailFocused: $isEmailFocused,
+                                isPasswordFocused: $isPasswordFocused,
+                                authService: authService,
+                                onLogin: handleLogin,
+                                onForgotPassword: { showForgotPassword = true }
+                            )
+                            .padding(.horizontal, 24)
+                            
+                            // Biometric authentication section
+                            if authService.biometricService.biometricType != .none {
+                                BiometricLoginSection(
+                                    authService: authService,
+                                    email: email,
+                                    password: password,
+                                    onBiometricLogin: handleBiometricLogin
+                                )
+                                .padding(.horizontal, 24)
+                                .padding(.top, 24)
+                            }
+                            
+                            // Sign up link
+                            SignUpPromptCard(
+                                isLoading: authService.isLoading,
+                                onSignUpTap: { navigateToSignup = true }
+                            )
+                            .padding(.horizontal, 24)
+                            .padding(.top, 32)
+                            .padding(.bottom, max(20, geometry.safeAreaInsets.bottom + 20))
                         }
                     }
-                    
-                    // Sign in button
-                    Button(action: handleLogin) {
-                        HStack {
-                            signInButtonContent
+                }
+                .navigationDestination(isPresented: $navigateToSignup) {
+                    SignupView(authState: $authState)
+                }
+                .navigationBarHidden(true)
+                .alert("Reset Password", isPresented: $showForgotPassword) {
+                    TextField("Enter your email", text: $email)
+                    Button("Send Reset Email") {
+                        Task {
+                            await authService.resetPassword(email: email)
                         }
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(Color.blue)
-                        .cornerRadius(25)
                     }
-                    .disabled(isSignInButtonDisabled)
-                    .opacity(isSignInButtonDisabled ? 0.6 : 1.0)
-                    .padding(.top, 24)
+                    Button("Cancel", role: .cancel) { }
+                } message: {
+                    Text("Enter your email address to receive a password reset link.")
                 }
-                .padding(.horizontal, 24)
-                
-                Spacer()
-                
-                // Bottom signup link
-                VStack(spacing: 8) {
-                    HStack {
-                        Text("Don't have an account? ")
-                            .font(.system(size: 14))
-                            .foregroundColor(.gray)
-                        Button(action: { navigateToSignup = true }) {
-                            Text("Sign up")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(.black)
-                        }
-                        .disabled(authService.isLoading)
-                    }
+                .onAppear {
+                    authService.biometricService.checkBiometricAvailability()
                 }
-                .padding(.bottom, 40)
-            }
-            .background(Color.white)
-            .navigationDestination(isPresented: $navigateToSignup) {
-                SignupView(authState: $authState)
-            }
-            .navigationBarHidden(true)
-            .alert("Reset Password", isPresented: $showForgotPassword) {
-                TextField("Enter your email", text: $email)
-                Button("Send Reset Email") {
-                    Task {
-                        await authService.resetPassword(email: email)
-                    }
-                }
-                Button("Cancel", role: .cancel) { }
-            } message: {
-                Text("Enter your email address to receive a password reset link.")
-            }
-            .onAppear {
-                // Check biometric availability when view appears
-                authService.biometricService.checkBiometricAvailability()
             }
         }
     }
@@ -367,4 +254,334 @@ struct LoginView: View {
             await authService.loginWithBiometrics()
         }
     }
+}
+
+// MARK: - Supporting View Components
+
+struct ErrorMessageCard: View {
+    let message: String
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.system(size: 16, weight: .medium))
+                .foregroundColor(.red)
+            
+            Text(message)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(.red)
+                .multilineTextAlignment(.leading)
+            
+            Spacer()
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(.ultraThinMaterial)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.red.opacity(0.3), lineWidth: 1)
+                )
+        )
+        .shadow(color: Color.red.opacity(0.1), radius: 8, x: 0, y: 4)
+    }
+}
+
+struct LoginFormCard: View {
+    @Binding var email: String
+    @Binding var password: String
+    @Binding var isEmailFocused: Bool
+    @Binding var isPasswordFocused: Bool
+    
+    let authService: AuthenticationService
+    let onLogin: () -> Void
+    let onForgotPassword: () -> Void
+    
+    private var isFormValid: Bool {
+        !email.isEmpty && !password.isEmpty && !authService.isLoading
+    }
+    
+    var body: some View {
+        VStack(spacing: 24) {
+            VStack(spacing: 16) {
+                // Email input with modern floating label design
+                ModernTextField(
+                    text: $email,
+                    placeholder: "Email Address",
+                    icon: "envelope.fill",
+                    isSecure: false,
+                    keyboardType: .emailAddress,
+                    isFocused: $isEmailFocused,
+                    isDisabled: authService.isLoading
+                )
+                
+                // Password input
+                ModernTextField(
+                    text: $password,
+                    placeholder: "Password",
+                    icon: "lock.fill",
+                    isSecure: true,
+                    keyboardType: .default,
+                    isFocused: $isPasswordFocused,
+                    isDisabled: authService.isLoading
+                )
+            }
+            
+            // Forgot password link
+            HStack {
+                Spacer()
+                Button(action: onForgotPassword) {
+                    Text("Forgot Password?")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.blue)
+                }
+                .disabled(authService.isLoading)
+            }
+            
+            // Sign in button
+            ModernActionButton(
+                title: "Sign In",
+                icon: "arrow.right.circle.fill",
+                isLoading: authService.isLoading,
+                isEnabled: isFormValid,
+                style: .primary,
+                action: onLogin
+            )
+        }
+        .padding(24)
+        .background(
+            RoundedRectangle(cornerRadius: 24)
+                .fill(.ultraThinMaterial)
+                .shadow(color: Color.black.opacity(0.1), radius: 20, x: 0, y: 10)
+        )
+    }
+}
+
+struct ModernTextField: View {
+    @Binding var text: String
+    let placeholder: String
+    let icon: String
+    let isSecure: Bool
+    let keyboardType: UIKeyboardType
+    @Binding var isFocused: Bool
+    let isDisabled: Bool
+    
+    @State private var isPasswordVisible = false
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 12) {
+                Image(systemName: icon)
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(isFocused ? .blue : .secondary)
+                    .frame(width: 20)
+                
+                ZStack(alignment: .leading) {
+                    if text.isEmpty {
+                        Text(placeholder)
+                            .font(.system(size: 16))
+                            .foregroundColor(Color(UIColor.tertiaryLabel))
+                    }
+                    
+                    if isSecure && !isPasswordVisible {
+                        SecureField("", text: $text)
+                            .font(.system(size: 16, weight: .medium))
+                            .disabled(isDisabled)
+                    } else {
+                        TextField("", text: $text)
+                            .font(.system(size: 16, weight: .medium))
+                            .keyboardType(keyboardType)
+                            .autocapitalization(.none)
+                            .disabled(isDisabled)
+                    }
+                }
+                
+                if isSecure {
+                    Button(action: { isPasswordVisible.toggle() }) {
+                        Image(systemName: isPasswordVisible ? "eye.slash.fill" : "eye.fill")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.secondary)
+                    }
+                    .disabled(isDisabled)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 16)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color(.systemGray6))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(isFocused ? Color.blue : Color.clear, lineWidth: 2)
+                    )
+            )
+        }
+        .animation(.easeInOut(duration: 0.2), value: isFocused)
+    }
+}
+
+struct BiometricLoginSection: View {
+    let authService: AuthenticationService
+    let email: String
+    let password: String
+    let onBiometricLogin: () -> Void
+    
+    private var isLoading: Bool {
+        authService.biometricService.isLoading || authService.isLoading
+    }
+    
+    private var isBiometricAvailable: Bool {
+        authService.biometricService.biometricType != .none && !isLoading
+    }
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            // Divider with "OR"
+            HStack {
+                Rectangle()
+                    .fill(Color.secondary.opacity(0.3))
+                    .frame(height: 1)
+                
+                Text("OR")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(.secondary)
+                    .padding(.horizontal, 16)
+                
+                Rectangle()
+                    .fill(Color.secondary.opacity(0.3))
+                    .frame(height: 1)
+            }
+            
+            // Biometric authentication card
+            VStack(spacing: 16) {
+                if authService.biometricService.isBiometricEnabled {
+                    // Quick biometric login button
+                    ModernActionButton(
+                        title: isLoading ? "Authenticating..." : "Sign in with \(authService.biometricService.biometricTypeString)",
+                        icon: authService.biometricService.biometricIcon,
+                        isLoading: isLoading,
+                        isEnabled: isBiometricAvailable,
+                        style: .secondary,
+                        action: onBiometricLogin
+                    )
+                } else {
+                    // Enable biometric login prompt
+                    if !email.isEmpty && !password.isEmpty {
+                        Button(action: {
+                            Task {
+                                await authService.enableBiometricLogin(email: email, password: password)
+                            }
+                        }) {
+                            HStack(spacing: 12) {
+                                Image(systemName: authService.biometricService.biometricIcon)
+                                    .font(.system(size: 16, weight: .medium))
+                                
+                                Text("Enable \(authService.biometricService.biometricTypeString) Login")
+                                    .font(.system(size: 14, weight: .medium))
+                            }
+                            .foregroundColor(.blue)
+                            .padding(.vertical, 12)
+                        }
+                        .disabled(authService.isLoading)
+                    }
+                }
+            }
+        }
+    }
+}
+
+struct ModernActionButton: View {
+    let title: String
+    let icon: String
+    let isLoading: Bool
+    let isEnabled: Bool
+    let style: ButtonStyle
+    let action: () -> Void
+    
+    enum ButtonStyle {
+        case primary, secondary
+        
+        var colors: (background: [Color], foreground: Color) {
+            switch self {
+            case .primary:
+                return ([.blue, .purple], .white)
+            case .secondary:
+                return ([.green.opacity(0.8), .green], .white)
+            }
+        }
+    }
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                if isLoading {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: style.colors.foreground))
+                        .scaleEffect(0.8)
+                } else {
+                    Image(systemName: icon)
+                        .font(.system(size: 16, weight: .semibold))
+                }
+                
+                Text(title)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(style.colors.foreground)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+            .background(
+                LinearGradient(
+                    colors: style.colors.background,
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
+            .cornerRadius(16)
+            .shadow(color: style.colors.background.first!.opacity(0.3), radius: 8, x: 0, y: 4)
+        }
+        .disabled(!isEnabled)
+        .opacity(isEnabled ? 1.0 : 0.6)
+        .scaleEffect(isEnabled ? 1.0 : 0.98)
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isEnabled)
+    }
+}
+
+struct SignUpPromptCard: View {
+    let isLoading: Bool
+    let onSignUpTap: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            HStack(spacing: 4) {
+                Text("Don't have an account?")
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundColor(.secondary)
+                
+                Button(action: onSignUpTap) {
+                    Text("Sign Up")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [.blue, .purple],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                }
+                .disabled(isLoading)
+            }
+        }
+        .padding(.vertical, 20)
+        .frame(maxWidth: .infinity)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(.ultraThinMaterial)
+                .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
+        )
+    }
+}
+
+#Preview {
+    LoginView(authState: .constant(.login))
+        .environmentObject(AuthenticationService())
 }
