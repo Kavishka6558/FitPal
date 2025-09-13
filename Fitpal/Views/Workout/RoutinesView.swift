@@ -2,33 +2,37 @@ import SwiftUI
 
 struct RoutinesView: View {
     @Environment(\.dismiss) private var dismiss
+    @StateObject private var workoutService = WorkoutFirebaseService()
+    @StateObject private var notificationService = NotificationService.shared
     @State private var workoutName: String = "Chest"
     @State private var selectedWorkout: String = "Push-ups"
     @State private var numberOfSets: Int = 3
     @State private var numberOfReps: Int = 10
-    @State private var showSaveConfirmation = false
+    @State private var isWorkoutDropdownExpanded = false
+    @State private var isSavingWorkout = false
+    @State private var saveErrorMessage: String = ""
     
     let workoutOptions = ["Pull Day", "Push Day", "Cardio"]
     let workoutExercises = ["Push-ups", "Pull-ups", "Squats", "Deadlifts", "Bench Press", "Shoulder Press", "Bicep Curls", "Tricep Dips", "Lunges", "Plank"]
     
     private var modernBackgroundGradient: some View {
         ZStack {
-            // Base gradient
+            // Base gradient with warmer, more vibrant colors
             LinearGradient(
                 colors: [
-                    Color(.systemIndigo).opacity(0.15),
-                    Color(.systemBlue).opacity(0.12),
-                    Color(.systemPurple).opacity(0.08),
+                    Color(.systemOrange).opacity(0.12),
+                    Color(.systemRed).opacity(0.08),
+                    Color(.systemPink).opacity(0.06),
                     Color.clear
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
             
-            // Accent overlay
+            // Accent overlay with energetic colors
             RadialGradient(
                 colors: [
-                    Color.cyan.opacity(0.1),
+                    Color.yellow.opacity(0.08),
                     Color.clear
                 ],
                 center: .topTrailing,
@@ -36,10 +40,10 @@ struct RoutinesView: View {
                 endRadius: 300
             )
             
-            // Bottom accent
+            // Bottom accent with fitness theme
             RadialGradient(
                 colors: [
-                    Color.pink.opacity(0.08),
+                    Color.mint.opacity(0.1),
                     Color.clear
                 ],
                 center: .bottomLeading,
@@ -51,7 +55,7 @@ struct RoutinesView: View {
     }
     
     private var modernHeaderView: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 12) {
             HStack {
                 Button(action: {
                     dismiss()
@@ -87,12 +91,12 @@ struct RoutinesView: View {
                 
                 Spacer()
                 
-                VStack(spacing: 4) {
+                VStack(spacing: 2) {
                     Text("Workout Builder")
                         .font(.system(size: 18, weight: .bold, design: .rounded))
                         .foregroundStyle(
                             LinearGradient(
-                                colors: [.primary, .secondary],
+                                colors: [.black],
                                 startPoint: .leading,
                                 endPoint: .trailing
                             )
@@ -105,12 +109,12 @@ struct RoutinesView: View {
                 
                 Spacer()
                 
-                // Floating accent decoration
+                // Floating accent decoration with fitness theme
                 ZStack {
                     Circle()
                         .fill(
                             LinearGradient(
-                                colors: [.blue.opacity(0.2), .purple.opacity(0.1)],
+                                colors: [.orange.opacity(0.3), .red.opacity(0.2)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
@@ -118,25 +122,25 @@ struct RoutinesView: View {
                         .frame(width: 50, height: 50)
                         .blur(radius: 8)
                     
-                    Image(systemName: "star.fill")
+                    Image(systemName: "flame.fill")
                         .font(.system(size: 14, weight: .bold))
                         .foregroundStyle(
                             LinearGradient(
-                                colors: [.yellow, .orange],
+                                colors: [.orange, .red],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
                         )
-                        .shadow(color: .yellow.opacity(0.4), radius: 8, x: 0, y: 2)
+                        .shadow(color: .orange.opacity(0.6), radius: 8, x: 0, y: 2)
                 }
             }
             .padding(.horizontal, 20)
-            .padding(.top, 10)
+            .padding(.top, 5)
         }
     }
     
     private var headerView: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 12) {
             HStack {
                 Button(action: {
                     dismiss()
@@ -181,15 +185,15 @@ struct RoutinesView: View {
                 .ignoresSafeArea()
             
             ScrollView {
-                VStack(spacing: 32) {
+                VStack(spacing: 20) {
                     modernHeaderView
                         .padding(.horizontal, 4)
                     
                     // Enhanced Hero Section
-                    VStack(alignment: .leading, spacing: 16) {
+                    VStack(alignment: .leading, spacing: 12) {
                         HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("Create Your")
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("")
                                     .font(.system(size: 36, weight: .light, design: .rounded))
                                     .foregroundStyle(
                                         LinearGradient(
@@ -199,16 +203,16 @@ struct RoutinesView: View {
                                         )
                                     )
                                 
-                                Text("Perfect Routine")
+                                Text("")
                                     .font(.system(size: 36, weight: .black, design: .rounded))
                                     .foregroundStyle(
                                         LinearGradient(
-                                            colors: [.cyan, .blue, .purple, .pink],
+                                            colors: [.orange, .red, .pink, .red],
                                             startPoint: .leading,
                                             endPoint: .trailing
                                         )
                                     )
-                                    .shadow(color: .blue.opacity(0.3), radius: 10, x: 0, y: 5)
+                                    .shadow(color: .red.opacity(0.3), radius: 10, x: 0, y: 5)
                             }
                             Spacer()
                         }
@@ -216,13 +220,13 @@ struct RoutinesView: View {
                         Text("Customize your workout with precision and style")
                             .font(.system(size: 16, weight: .medium, design: .rounded))
                             .foregroundColor(.secondary)
-                            .padding(.top, 4)
+                            .padding(.top, 2)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 20)
                     
                     // Workout Configuration Section
-                    VStack(spacing: 20) {
+                    VStack(spacing: 14) {
                         // Workout Name Selection
                         ModernPickerCard(
                             title: "Workout Type",
@@ -232,17 +236,18 @@ struct RoutinesView: View {
                             icon: "figure.strengthtraining.traditional"
                         )
                         
-                        // Workouts Selection
-                        ModernPickerCard(
+                        // Workouts Selection - Dropdown version
+                        ModernDropdownPickerCard(
                             title: "Workouts",
                             subtitle: "Choose specific exercises",
                             selection: $selectedWorkout,
                             options: workoutExercises,
-                            icon: "figure.strengthtraining.functional"
+                            icon: "figure.strengthtraining.functional",
+                            isExpanded: $isWorkoutDropdownExpanded
                         )
                         
                         // Sets and Reps Configuration with Modern Layout
-                        HStack(spacing: 16) {
+                        HStack(spacing: 12) {
                             ModernStepperCard(
                                 title: "Sets",
                                 subtitle: "Number of sets",
@@ -264,52 +269,57 @@ struct RoutinesView: View {
                     }
                     .padding(.horizontal, 20)
                     
-                    // Spacer for better visual balance
-                    Spacer(minLength: 20)
-                    
                     // Enhanced Action Buttons
-                    VStack(spacing: 16) {
+                    VStack(spacing: 12) {
                         // Save Button with Enhanced Design
                         Button(action: saveWorkout) {
-                            HStack(spacing: 16) {
+                            HStack(spacing: 12) {
                                 ZStack {
-                                    Circle()
-                                        .fill(
-                                            LinearGradient(
-                                                colors: [.white.opacity(0.2), .white.opacity(0.1)],
-                                                startPoint: .topLeading,
-                                                endPoint: .bottomTrailing
+                                        Circle()
+                                            .fill(
+                                                LinearGradient(
+                                                    colors: [.white.opacity(0.2), .white.opacity(0.1)],
+                                                    startPoint: .topLeading,
+                                                    endPoint: .bottomTrailing
+                                                )
                                             )
-                                        )
-                                        .frame(width: 48, height: 48)
+                                            .frame(width: 40, height: 40)
                                     
-                                    Image(systemName: "checkmark")
-                                        .font(.system(size: 20, weight: .bold, design: .rounded))
-                                        .foregroundColor(.white)
+                                    if isSavingWorkout {
+                                        ProgressView()
+                                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                            .scaleEffect(0.8)
+                                    } else {
+                                        Image(systemName: "checkmark")
+                                            .font(.system(size: 20, weight: .bold, design: .rounded))
+                                            .foregroundColor(.white)
+                                    }
                                 }
                                 
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("Save Workout")
+                                    Text(isSavingWorkout ? "Saving..." : "Save Workout")
                                         .font(.system(size: 18, weight: .bold, design: .rounded))
                                         .foregroundColor(.white)
                                     
-                                    Text("Add to your routine collection")
+                                    Text(isSavingWorkout ? "Adding to Firebase..." : "Add to your routine collection")
                                         .font(.system(size: 13, weight: .medium, design: .rounded))
                                         .foregroundColor(.white.opacity(0.8))
                                 }
                                 
                                 Spacer()
                                 
-                                Image(systemName: "arrow.right")
-                                    .font(.system(size: 16, weight: .bold, design: .rounded))
-                                    .foregroundColor(.white.opacity(0.8))
+                                if !isSavingWorkout {
+                                    Image(systemName: "arrow.right")
+                                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                                        .foregroundColor(.white.opacity(0.8))
+                                }
                             }
-                            .padding(.horizontal, 24)
-                            .padding(.vertical, 18)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 14)
                             .background(
                                 ZStack {
                                     LinearGradient(
-                                        colors: [.cyan, .blue, .purple],
+                                        colors: [.orange, .red, .pink],
                                         startPoint: .topLeading,
                                         endPoint: .bottomTrailing
                                     )
@@ -334,8 +344,31 @@ struct RoutinesView: View {
                                         lineWidth: 1
                                     )
                             )
-                            .shadow(color: .blue.opacity(0.4), radius: 20, x: 0, y: 10)
-                            .shadow(color: .purple.opacity(0.3), radius: 40, x: 0, y: 20)
+                            .shadow(color: .red.opacity(0.4), radius: 20, x: 0, y: 10)
+                            .shadow(color: .pink.opacity(0.3), radius: 40, x: 0, y: 20)
+                        }
+                        .disabled(isSavingWorkout)
+                        .opacity(isSavingWorkout ? 0.8 : 1.0)
+                        
+                        // Test Notification Button (for debugging)
+                        Button(action: {
+                            notificationService.showWorkoutSavedNotification(
+                                workoutName: "Test",
+                                exerciseName: "Test Exercise",
+                                sets: 3,
+                                reps: 10
+                            )
+                        }) {
+                            HStack {
+                                Image(systemName: "bell.fill")
+                                Text("Test Notification")
+                                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                            }
+                            .foregroundColor(.orange)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .background(.orange.opacity(0.1))
+                            .cornerRadius(8)
                         }
                         
                         // Cancel Button with Modern Style
@@ -348,7 +381,7 @@ struct RoutinesView: View {
                                     .foregroundColor(.secondary)
                             }
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
+                            .padding(.vertical, 12)
                             .background(.ultraThinMaterial)
                             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                             .overlay(
@@ -358,26 +391,47 @@ struct RoutinesView: View {
                         }
                     }
                     .padding(.horizontal, 20)
-                    
-                    // Spacer for better visual balance
-                    Spacer(minLength: 20)
                 }
-                .padding(.bottom, 16)
+                .padding(.bottom, 12)
             }
         }
         .navigationBarBackButtonHidden(true)
-        .alert("Workout Saved!", isPresented: $showSaveConfirmation) {
-            Button("OK") {
-                dismiss()
-            }
-        } message: {
-            Text("Your \(workoutName) routine with \(selectedWorkout) exercise - \(numberOfSets) sets and \(numberOfReps) reps has been saved successfully.")
-        }
     }
     
     private func saveWorkout() {
-        showSaveConfirmation = true
-        print("Workout Saved: \(workoutName) - \(selectedWorkout), \(numberOfSets) sets, \(numberOfReps) reps")
+        isSavingWorkout = true
+        
+        workoutService.saveWorkout(
+            workoutName: workoutName,
+            selectedWorkout: selectedWorkout,
+            numberOfSets: numberOfSets,
+            numberOfReps: numberOfReps
+        ) { result in
+            DispatchQueue.main.async {
+                isSavingWorkout = false
+                
+                switch result {
+                case .success(let message):
+                    print("✅ \(message)")
+                    // Trigger push notification for successful save
+                    notificationService.showWorkoutSavedNotification(
+                        workoutName: workoutName,
+                        exerciseName: selectedWorkout,
+                        sets: numberOfSets,
+                        reps: numberOfReps
+                    )
+                    // Auto dismiss after successful save
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        dismiss()
+                    }
+                case .failure(let error):
+                    print("❌ Error saving workout: \(error.localizedDescription)")
+                    saveErrorMessage = error.localizedDescription
+                    // Trigger push notification for save error
+                    notificationService.showWorkoutSaveErrorNotification(error: error.localizedDescription)
+                }
+            }
+        }
     }
 }
 
@@ -390,14 +444,14 @@ struct ModernPickerCard: View {
     let icon: String
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 12) {
             // Enhanced Header with Modern Icon
-            HStack(spacing: 16) {
+            HStack(spacing: 12) {
                 ZStack {
                     Circle()
                         .fill(
                             LinearGradient(
-                                colors: [.blue.opacity(0.1), .purple.opacity(0.08)],
+                                colors: [.orange.opacity(0.1), .red.opacity(0.08)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
@@ -408,20 +462,20 @@ struct ModernPickerCard: View {
                         .font(.system(size: 20, weight: .semibold, design: .rounded))
                         .foregroundStyle(
                             LinearGradient(
-                                colors: [.blue, .purple],
+                                colors: [.orange, .red],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
                         )
                 }
                 
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text(title)
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
                         .foregroundColor(.primary)
                     
                     Text(subtitle)
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .font(.system(size: 13, weight: .medium, design: .rounded))
                         .foregroundColor(.secondary)
                 }
                 
@@ -431,18 +485,18 @@ struct ModernPickerCard: View {
                 Circle()
                     .fill(
                         LinearGradient(
-                            colors: [.green.opacity(0.8), .mint.opacity(0.6)],
+                            colors: [.pink.opacity(0.8), .orange.opacity(0.6)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
                     )
                     .frame(width: 8, height: 8)
-                    .shadow(color: .green.opacity(0.4), radius: 4, x: 0, y: 2)
+                    .shadow(color: .pink.opacity(0.4), radius: 4, x: 0, y: 2)
             }
             
             // Enhanced Options Selector
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
+                HStack(spacing: 10) {
                     ForEach(options, id: \.self) { option in
                         Button(action: {
                             withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
@@ -510,7 +564,7 @@ struct ModernPickerCard: View {
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .overlay(buttonOverlay(isSelected: isSelected))
         .shadow(
-            color: isSelected ? .blue.opacity(0.3) : .clear,
+            color: isSelected ? .orange.opacity(0.3) : .clear,
             radius: isSelected ? 8 : 0,
             x: 0, y: isSelected ? 4 : 0
         )
@@ -521,7 +575,7 @@ struct ModernPickerCard: View {
     private func buttonBackground(isSelected: Bool) -> some View {
         if isSelected {
             LinearGradient(
-                colors: [.blue, .purple, .pink],
+                colors: [.orange, .red, .pink],
                 startPoint: .leading,
                 endPoint: .trailing
             )
@@ -550,9 +604,9 @@ struct ModernStepperCard: View {
     let icon: String
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 12) {
             // Enhanced Header
-            HStack(spacing: 12) {
+            HStack(spacing: 10) {
                 ZStack {
                     Circle()
                         .fill(
@@ -562,10 +616,10 @@ struct ModernStepperCard: View {
                                 endPoint: .bottomTrailing
                             )
                         )
-                        .frame(width: 40, height: 40)
+                        .frame(width: 36, height: 36)
                     
                     Image(systemName: icon)
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .font(.system(size: 14, weight: .bold, design: .rounded))
                         .foregroundStyle(
                             LinearGradient(
                                 colors: [.orange, .pink],
@@ -575,13 +629,13 @@ struct ModernStepperCard: View {
                         )
                 }
                 
-                VStack(alignment: .leading, spacing: 3) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text(title)
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .font(.system(size: 14, weight: .bold, design: .rounded))
                         .foregroundColor(.primary)
                     
                     Text(subtitle)
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .font(.system(size: 11, weight: .medium, design: .rounded))
                         .foregroundColor(.secondary)
                 }
                 
@@ -620,17 +674,17 @@ struct ModernStepperCard: View {
                         .font(.system(size: 28, weight: .black, design: .rounded))
                         .foregroundStyle(
                             LinearGradient(
-                                colors: [.blue, .purple, .pink],
+                                colors: [.orange, .red, .pink],
                                 startPoint: .leading,
                                 endPoint: .trailing
                             )
                         )
-                        .shadow(color: .blue.opacity(0.2), radius: 4, x: 0, y: 2)
+                        .shadow(color: .red.opacity(0.2), radius: 4, x: 0, y: 2)
                     
                     Rectangle()
                         .fill(
                             LinearGradient(
-                                colors: [.blue.opacity(0.6), .purple.opacity(0.4)],
+                                colors: [.orange.opacity(0.6), .red.opacity(0.4)],
                                 startPoint: .leading,
                                 endPoint: .trailing
                             )
@@ -693,6 +747,213 @@ struct ModernStepperCard: View {
         )
         .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: 4)
         .shadow(color: .black.opacity(0.03), radius: 16, x: 0, y: 8)
+    }
+}
+
+// MARK: - Modern Dropdown Picker Card
+struct ModernDropdownPickerCard: View {
+    let title: String
+    let subtitle: String
+    @Binding var selection: String
+    let options: [String]
+    let icon: String
+    @Binding var isExpanded: Bool
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            headerSection
+            dropdownButton
+            if isExpanded {
+                optionsList
+            }
+        }
+        .padding(16)
+        .background(backgroundView)
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay(borderOverlay)
+        .shadow(color: .black.opacity(0.08), radius: 12, x: 0, y: 6)
+        .shadow(color: .black.opacity(0.04), radius: 24, x: 0, y: 12)
+    }
+    
+    private var headerSection: some View {
+        HStack(spacing: 12) {
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [.orange.opacity(0.1), .red.opacity(0.08)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 40, height: 40)
+                
+                Image(systemName: icon)
+                    .font(.system(size: 18, weight: .semibold, design: .rounded))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [.orange, .red],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+            }
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .foregroundColor(.primary)
+                
+                Text(subtitle)
+                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .foregroundColor(.secondary)
+            }
+            
+            Spacer()
+            
+            Circle()
+                .fill(
+                    LinearGradient(
+                        colors: [.pink.opacity(0.8), .orange.opacity(0.6)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .frame(width: 8, height: 8)
+                .shadow(color: .pink.opacity(0.4), radius: 4, x: 0, y: 2)
+        }
+    }
+    
+    private var dropdownButton: some View {
+        Button(action: {
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                isExpanded.toggle()
+            }
+        }) {
+            HStack {
+                Text(selection.isEmpty ? "Select Workout" : selection)
+                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .foregroundColor(selection.isEmpty ? .secondary : .primary)
+                
+                Spacer()
+                
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundColor(.secondary)
+                    .rotationEffect(.degrees(isExpanded ? 180 : 0))
+                    .animation(.spring(response: 0.4, dampingFraction: 0.8), value: isExpanded)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+            .background(dropdownButtonBackground)
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+    
+    private var dropdownButtonBackground: some View {
+        RoundedRectangle(cornerRadius: 12, style: .continuous)
+            .fill(Material.ultraThinMaterial)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .stroke(
+                        LinearGradient(
+                            colors: [.white.opacity(0.2), .clear],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1
+                    )
+            )
+    }
+    
+    private var optionsList: some View {
+        VStack(spacing: 4) {
+            ForEach(options, id: \.self) { option in
+                optionButton(for: option)
+            }
+        }
+        .padding(.top, 8)
+        .transition(.asymmetric(
+            insertion: .opacity.combined(with: .offset(y: -10)),
+            removal: .opacity.combined(with: .offset(y: -5))
+        ))
+    }
+    
+    private func optionButton(for option: String) -> some View {
+        Button(action: {
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                selection = option
+                isExpanded = false
+            }
+        }) {
+            HStack {
+                Text(option)
+                    .font(.system(size: 15, weight: .medium, design: .rounded))
+                    .foregroundColor(.primary)
+                
+                Spacer()
+                
+                if selection == option {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [.orange, .red],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(optionBackground(isSelected: selection == option))
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+    
+    private func optionBackground(isSelected: Bool) -> some View {
+        Group {
+            if isSelected {
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [.orange.opacity(0.1), .red.opacity(0.05)],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                        .opacity(0.8)
+                    )
+            } else {
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(Color.clear)
+            }
+        }
+    }
+    
+    private var backgroundView: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .fill(Material.ultraThinMaterial)
+            
+            LinearGradient(
+                colors: [.white.opacity(0.1), .clear, .black.opacity(0.02)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        }
+    }
+    
+    private var borderOverlay: some View {
+        RoundedRectangle(cornerRadius: 20, style: .continuous)
+            .stroke(
+                LinearGradient(
+                    colors: [.white.opacity(0.2), .clear],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ),
+                lineWidth: 1
+            )
     }
 }
 

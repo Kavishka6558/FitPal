@@ -7,6 +7,7 @@ struct ProfileView: View {
     @State private var showingBiometricSettings = false
     @State private var isBiometricEnabled = false
     @State private var biometricType: BiometricType = .none
+    @State private var showingEditData = false
     
     var body: some View {
         NavigationView {
@@ -78,7 +79,7 @@ struct ProfileView: View {
                                 iconColor: .blue,
                                 title: "Edit Profile",
                                 subtitle: "Manage your personal information",
-                                action: { /* Handle edit profile */ }
+                                action: { showingEditData = true }
                             )
                             
                             ModernProfileRow(
@@ -188,6 +189,9 @@ struct ProfileView: View {
             } message: {
                 Text("Are you sure you want to sign out of your account?")
             }
+        }
+        .sheet(isPresented: $showingEditData) {
+            EditData()
         }
     }
     

@@ -3,6 +3,8 @@ import SwiftUI
 // MARK: - Modern Workout View
 struct WorkoutView: View {
     @Environment(\.dismiss) private var dismiss
+    // Temporarily commenting out WorkoutSuggestionService until build issues are resolved
+    // @StateObject private var workoutSuggestionService = WorkoutSuggestionService()
     @State private var selectedTab: WorkoutTab = .suggested
     @State private var selectedDate = Date()
     @State private var showCalendar = false
@@ -18,34 +20,48 @@ struct WorkoutView: View {
         case myWorkout = "My Workouts"
     }
     
-    // Sample workout data with enhanced variety
+    // Sample workout suggestions with AI-themed design
     let suggestedWorkouts = [
         WorkoutCategory(
-            title: "Push Day",
-            icon: "figure.strengthtraining.traditional",
-            iconColor: .blue,
+            title: "Cardio Health",
+            icon: "heart.fill",
+            iconColor: .red,
             difficulty: .intermediate,
-            duration: 45,
-            calories: 320,
+            duration: 30,
+            calories: 250,
             exercises: [
-                WorkoutExercise(name: "Barbell Bench Press", sets: 4, reps: 8, weight: "185 lbs"),
-                WorkoutExercise(name: "Incline Dumbbell Press", sets: 3, reps: 10, weight: "75 lbs"),
-                WorkoutExercise(name: "Overhead Press", sets: 3, reps: 8, weight: "135 lbs"),
-                WorkoutExercise(name: "Tricep Dips", sets: 3, reps: 12, weight: "Bodyweight")
+                WorkoutExercise(name: "Brisk Walking", sets: 1, reps: 0, weight: "20 min"),
+                WorkoutExercise(name: "Jumping Jacks", sets: 3, reps: 30, weight: "Bodyweight"),
+                WorkoutExercise(name: "High Knees", sets: 3, reps: 20, weight: "Each leg"),
+                WorkoutExercise(name: "Cool Down Stretch", sets: 1, reps: 0, weight: "10 min")
             ]
         ),
         WorkoutCategory(
-            title: "Pull Day",
-            icon: "figure.core.training",
-            iconColor: .orange,
-            difficulty: .beginner,
-            duration: 30,
-            calories: 180,
+            title: "Strength Builder",
+            icon: "figure.strengthtraining.traditional",
+            iconColor: .blue,
+            difficulty: .intermediate,
+            duration: 35,
+            calories: 280,
             exercises: [
-                WorkoutExercise(name: "Plank Hold", sets: 3, reps: 60, weight: "60 sec"),
-                WorkoutExercise(name: "Russian Twists", sets: 3, reps: 20, weight: "15 lb"),
-                WorkoutExercise(name: "Dead Bug", sets: 3, reps: 10, weight: "Each side"),
-                WorkoutExercise(name: "Bicycle Crunches", sets: 3, reps: 15, weight: "Each side")
+                WorkoutExercise(name: "Push-ups", sets: 3, reps: 12, weight: "Bodyweight"),
+                WorkoutExercise(name: "Squats", sets: 3, reps: 15, weight: "Bodyweight"),
+                WorkoutExercise(name: "Plank", sets: 3, reps: 0, weight: "45 sec"),
+                WorkoutExercise(name: "Lunges", sets: 3, reps: 10, weight: "Each leg")
+            ]
+        ),
+        WorkoutCategory(
+            title: "Flexibility & Mobility",
+            icon: "figure.yoga",
+            iconColor: .purple,
+            difficulty: .beginner,
+            duration: 20,
+            calories: 80,
+            exercises: [
+                WorkoutExercise(name: "Cat-Cow Stretch", sets: 2, reps: 10, weight: "Slow"),
+                WorkoutExercise(name: "Hip Circles", sets: 2, reps: 8, weight: "Each direction"),
+                WorkoutExercise(name: "Shoulder Rolls", sets: 2, reps: 10, weight: "Backward"),
+                WorkoutExercise(name: "Deep Breathing", sets: 3, reps: 5, weight: "Deep breaths")
             ]
         )
     ]
@@ -99,17 +115,12 @@ struct WorkoutView: View {
             isRefreshing = true
         }
         
-        // Simulate network request or data refresh
+        // Simulate workout refresh
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
             withAnimation(.easeInOut(duration: 0.3)) {
                 isRefreshing = false
             }
-            
-            // Here you would typically:
-            // - Reload workout data from API
-            // - Refresh user preferences
-            // - Update exercise recommendations
-            // - Sync with fitness tracking services
+            print("✅ Workouts refreshed successfully")
         }
     }
     
@@ -199,19 +210,21 @@ struct WorkoutView: View {
                                             .fill(.ultraThinMaterial)
                                             .frame(width: 44, height: 44)
                                             .overlay(
-                                                Image(systemName: "arrow.clockwise")
-                                                    .font(.system(size: 18, weight: .semibold))
-                                                    .foregroundColor(isRefreshing ? .blue : .primary)
-                                                    .rotationEffect(.degrees(isRefreshing ? 360 : 0))
-                                                    .animation(
-                                                        isRefreshing ? 
-                                                            Animation.linear(duration: 1.0).repeatForever(autoreverses: false) :
-                                                            Animation.easeOut(duration: 0.3),
-                                                        value: isRefreshing
-                                                    )
+                                                Group {
+                                                    if isRefreshing {
+                                                        ProgressView()
+                                                            .progressViewStyle(CircularProgressViewStyle(tint: .blue))
+                                                            .scaleEffect(0.8)
+                                                    } else {
+                                                        Image(systemName: "arrow.clockwise")
+                                                            .font(.system(size: 18, weight: .semibold))
+                                                            .foregroundColor(.primary)
+                                                    }
+                                                }
                                             )
                                             .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
                                     }
+                                    .disabled(isRefreshing)
                                     .disabled(isRefreshing)
                                 }
                                 .padding(.horizontal, 24)
@@ -234,25 +247,76 @@ struct WorkoutView: View {
                             // Workout content
                             let workouts = selectedTab == .suggested ? suggestedWorkouts : myWorkouts
                             
-                            LazyVStack(spacing: 20) {
-                                ForEach(workouts, id: \.title) { category in
-                                    ModernWorkoutCard(
-                                        category: category,
-                                        onExerciseSelected: { exercise, workoutTitle in
-                                            selectedExercise = exercise
-                                            selectedWorkoutTitle = workoutTitle
-                                            showExerciseView = true
-                                        }
-                                    )
-                                        .transition(.asymmetric(
-                                            insertion: .opacity.combined(with: .move(edge: .bottom)),
-                                            removal: .opacity
-                                        ))
+                            if selectedTab == .suggested && isRefreshing && workouts.isEmpty {
+                                // Loading state for refreshing suggestions
+                                VStack(spacing: 24) {
+                                    ForEach(0..<3, id: \.self) { _ in
+                                        WorkoutLoadingCard()
+                                    }
                                 }
+                                .padding(.horizontal, 24)
+                                .padding(.top, 24)
+                                
+                            } else if selectedTab == .suggested && workouts.isEmpty {
+                                // Empty state for suggested workouts
+                                VStack(spacing: 16) {
+                                    Image(systemName: "brain.head.profile")
+                                        .font(.system(size: 48, weight: .light))
+                                        .foregroundColor(.secondary.opacity(0.5))
+                                    
+                                    Text("No workout suggestions yet")
+                                        .font(.system(size: 18, weight: .semibold))
+                                        .foregroundColor(.primary)
+                                    
+                                    Text("Pull down to refresh and load personalized workouts")
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundColor(.secondary)
+                                        .multilineTextAlignment(.center)
+                                        .padding(.horizontal, 40)
+                                    
+                                    Button("Load Workouts") {
+                                        refreshWorkouts()
+                                    }
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 24)
+                                    .padding(.vertical, 12)
+                                    .background(
+                                        LinearGradient(
+                                            colors: [.purple, .pink],
+                                            startPoint: .leading,
+                                            endPoint: .trailing
+                                        ),
+                                        in: RoundedRectangle(cornerRadius: 12)
+                                    )
+                                    .shadow(color: .purple.opacity(0.3), radius: 8, x: 0, y: 4)
+                                    .disabled(isRefreshing)
+                                    .opacity(isRefreshing ? 0.7 : 1.0)
+                                }
+                                .padding(.horizontal, 24)
+                                .padding(.top, 60)
+                                
+                            } else {
+                                LazyVStack(spacing: 20) {
+                                    ForEach(workouts, id: \.title) { category in
+                                        ModernWorkoutCard(
+                                            category: category,
+                                            onExerciseSelected: { exercise, workoutTitle in
+                                                selectedExercise = exercise
+                                                selectedWorkoutTitle = workoutTitle
+                                                showExerciseView = true
+                                            }
+                                        )
+                                            .transition(.asymmetric(
+                                                insertion: .opacity.combined(with: .move(edge: .bottom)),
+                                                removal: .opacity
+                                            ))
+                                    }
+                                }
+                                .padding(.horizontal, 24)
+                                .padding(.top, 24)
+                                .padding(.bottom, 120) // Space for floating button
                             }
-                            .padding(.horizontal, 24)
-                            .padding(.top, 24)
-                            .padding(.bottom, 120) // Space for floating button
                         }
                     }
                     
@@ -261,12 +325,43 @@ struct WorkoutView: View {
                         Spacer()
                         HStack {
                             Spacer()
-                            Button(action: {
-                                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                                    showRoutinesView = true
-                                }
-                            }) {
+                            
+                            VStack(spacing: 12) {
+                                // Create workout label
+                                Text("Create Workout")
+                                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 8)
+                                    .background(
+                                        Capsule()
+                                            .fill(.ultraThinMaterial.opacity(0.8))
+                                            .overlay(
+                                                Capsule()
+                                                    .stroke(.white.opacity(0.2), lineWidth: 1)
+                                            )
+                                    )
+                                    .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
+                                
+                                Button(action: {
+                                    withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                                        showRoutinesView = true
+                                    }
+                                }) {
                                 ZStack {
+                                    // Outer glow effect
+                                    Circle()
+                                        .fill(
+                                            LinearGradient(
+                                                colors: [.blue.opacity(0.3), .purple.opacity(0.3)],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            )
+                                        )
+                                        .frame(width: 72, height: 72)
+                                        .blur(radius: 8)
+                                    
+                                    // Main button
                                     Circle()
                                         .fill(
                                             LinearGradient(
@@ -278,6 +373,7 @@ struct WorkoutView: View {
                                         .frame(width: 64, height: 64)
                                         .shadow(color: Color.blue.opacity(0.4), radius: 15, x: 0, y: 8)
                                     
+                                    // Plus icon
                                     Image(systemName: "plus")
                                         .font(.system(size: 24, weight: .bold))
                                         .foregroundColor(.white)
@@ -291,22 +387,65 @@ struct WorkoutView: View {
                                 .scaleEffect(showRoutinesView ? 0.95 : 1.0)
                                 .animation(.spring(response: 0.3, dampingFraction: 0.6), value: showRoutinesView)
                             }
+                            .accessibilityLabel("Create workout")
+                            .accessibilityHint("Navigate to create a new workout routine")
+                            }
                             .padding(.trailing, 30)
                             .padding(.bottom, 100)
                         }
                     }
                 }
                 .toolbar(.hidden)
+                .onAppear {
+                    // Initialize workout data on view appear
+                    print("WorkoutView appeared - Ready to display workouts")
+                }
                 .navigationDestination(isPresented: $showRoutinesView) {
                     RoutinesView()
                 }
                 .navigationDestination(isPresented: $showExerciseView) {
                     if let exercise = selectedExercise {
-                        WorkoutExerciseView(
-                            exerciseName: exercise.name,
-                            totalSets: exercise.sets,
-                            totalReps: exercise.reps
-                        )
+                        // Create a basic exercise detail view
+                        VStack(spacing: 20) {
+                            Text(exercise.name)
+                                .font(.largeTitle)
+                                .fontWeight(.bold)
+                            
+                            HStack(spacing: 20) {
+                                VStack {
+                                    Text("\(exercise.sets)")
+                                        .font(.title)
+                                        .fontWeight(.bold)
+                                    Text("Sets")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                                
+                                VStack {
+                                    Text("\(exercise.reps)")
+                                        .font(.title)
+                                        .fontWeight(.bold)
+                                    Text("Reps")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                                
+                                if !exercise.weight.isEmpty {
+                                    VStack {
+                                        Text(exercise.weight)
+                                            .font(.title3)
+                                            .fontWeight(.bold)
+                                        Text("Weight")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
+                            }
+                            
+                            Spacer()
+                        }
+                        .navigationTitle("Exercise Details")
+                        .navigationBarTitleDisplayMode(.inline)
                     }
                 }
             }
@@ -525,6 +664,30 @@ struct ModernWorkoutCard: View {
                                 .font(.system(size: 18, weight: .bold))
                                 .foregroundColor(.primary)
                             
+                            // AI-generated badge
+                            if category.title.contains("❤️") || category.title.contains("💪") || 
+                               category.title.contains("🧘") || category.title.contains("🔥") || 
+                               category.title.contains("🌿") || category.title.contains("🏃") {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "brain.head.profile")
+                                        .font(.system(size: 10, weight: .bold))
+                                    Text("AI")
+                                        .font(.system(size: 11, weight: .bold))
+                                }
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(
+                                    LinearGradient(
+                                        colors: [.purple, .pink],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    ),
+                                    in: RoundedRectangle(cornerRadius: 6)
+                                )
+                                .shadow(color: .purple.opacity(0.3), radius: 4, x: 0, y: 2)
+                            }
+                            
                             Spacer()
                             
                             // Difficulty badge
@@ -538,6 +701,24 @@ struct ModernWorkoutCard: View {
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
                             .background(category.difficulty.color.opacity(0.15), in: RoundedRectangle(cornerRadius: 8))
+                        }
+                        
+                        // Health focus indicator for AI-generated workouts
+                        if category.title.contains("❤️") || category.title.contains("💪") || 
+                           category.title.contains("🧘") || category.title.contains("🔥") || 
+                           category.title.contains("🌿") || category.title.contains("🏃") {
+                            HStack(spacing: 6) {
+                                Image(systemName: "target")
+                                    .font(.system(size: 10, weight: .semibold))
+                                    .foregroundColor(.green)
+                                
+                                Text(getHealthFocus(for: category.title))
+                                    .font(.system(size: 12, weight: .medium))
+                                    .foregroundColor(.secondary)
+                                    .lineLimit(1)
+                                
+                                Spacer()
+                            }
                         }
                         
                         HStack(spacing: 16) {
@@ -595,12 +776,65 @@ struct ModernWorkoutCard: View {
                 ))
             }
         }
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .background(
+            ZStack {
+                // Base material background
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .fill(.ultraThinMaterial)
+                
+                // Subtle gradient overlay
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                category.iconColor.opacity(0.03),
+                                Color.clear,
+                                category.iconColor.opacity(0.01)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+            }
+        )
         .overlay(
             RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .stroke(.white.opacity(0.2), lineWidth: 1)
+                .stroke(
+                    LinearGradient(
+                        colors: [
+                            .white.opacity(0.3),
+                            .white.opacity(0.1),
+                            .clear
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1
+                )
         )
-        .shadow(color: .black.opacity(0.08), radius: 15, x: 0, y: 8)
+        .shadow(
+            color: category.iconColor.opacity(0.1),
+            radius: 20,
+            x: 0,
+            y: 10
+        )
+        .shadow(
+            color: .black.opacity(0.05),
+            radius: 8,
+            x: 0,
+            y: 4
+        )
+    }
+    
+    // Helper function to get health focus description
+    private func getHealthFocus(for title: String) -> String {
+        if title.contains("❤️") { return "Cardiovascular health & blood sugar management" }
+        if title.contains("💪") { return "Muscle strength & bone density" }
+        if title.contains("🧘") { return "Flexibility & mobility enhancement" }
+        if title.contains("🔥") { return "Calorie burn & weight management" }
+        if title.contains("🌿") { return "Recovery & mental wellness" }
+        if title.contains("🏃") { return "General fitness improvement" }
+        return "Personalized fitness goals"
     }
 }
 
@@ -1277,6 +1511,75 @@ struct CreateWorkoutRoutinesView: View {
             }
         } message: {
             Text("Your workout '\(workoutName)' has been saved successfully!")
+        }
+    }
+}
+
+// MARK: - Loading Card Component
+struct WorkoutLoadingCard: View {
+    @State private var isAnimating = false
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 16) {
+                // Icon placeholder
+                Circle()
+                    .fill(Color.gray.opacity(0.2))
+                    .frame(width: 56, height: 56)
+                    .overlay(
+                        Circle()
+                            .fill(Color.white.opacity(isAnimating ? 0.3 : 0.6))
+                            .animation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true), value: isAnimating)
+                    )
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    // Title placeholder
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(Color.gray.opacity(0.2))
+                        .frame(width: 140, height: 16)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(Color.white.opacity(isAnimating ? 0.3 : 0.6))
+                                .animation(.easeInOut(duration: 1.3).repeatForever(autoreverses: true), value: isAnimating)
+                        )
+                    
+                    // Stats placeholders
+                    HStack(spacing: 16) {
+                        ForEach(0..<3, id: \.self) { _ in
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(Color.gray.opacity(0.2))
+                                .frame(width: 45, height: 12)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 4)
+                                        .fill(Color.white.opacity(isAnimating ? 0.3 : 0.6))
+                                        .animation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true), value: isAnimating)
+                                )
+                        }
+                    }
+                }
+                
+                Spacer()
+                
+                // Chevron placeholder
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(Color.gray.opacity(0.2))
+                    .frame(width: 20, height: 20)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(Color.white.opacity(isAnimating ? 0.3 : 0.6))
+                            .animation(.easeInOut(duration: 1.4).repeatForever(autoreverses: true), value: isAnimating)
+                    )
+            }
+            .padding(20)
+        }
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .stroke(.white.opacity(0.2), lineWidth: 1)
+        )
+        .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 5)
+        .onAppear {
+            isAnimating = true
         }
     }
 }

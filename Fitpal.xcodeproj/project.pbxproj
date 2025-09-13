@@ -417,9 +417,11 @@
 				DEVELOPMENT_TEAM = XJL3F8ZZ9Q;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "FitPal uses the camera to record workout videos for form analysis.";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "\"Fitpal uses Face ID to provide secure and convenient access to your health data and personal fitness information.\"";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "\"FitPal needs access to your health data to display your daily steps, walking distance, and calories burned to help you track your fitness progress.\"";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "\"FitPal would like to update your health data to record workout activities and fitness achievements.\"";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "FitPal needs access to your photo library to analyze workout videos for form correction.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -449,9 +451,11 @@
 				DEVELOPMENT_TEAM = XJL3F8ZZ9Q;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "FitPal uses the camera to record workout videos for form analysis.";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "\"Fitpal uses Face ID to provide secure and convenient access to your health data and personal fitness information.\"";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "\"FitPal needs access to your health data to display your daily steps, walking distance, and calories burned to help you track your fitness progress.\"";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "\"FitPal would like to update your health data to record workout activities and fitness achievements.\"";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "FitPal needs access to your photo library to analyze workout videos for form correction.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

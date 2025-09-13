@@ -1,4 +1,6 @@
 import SwiftUI
+import FirebaseFirestore
+import FirebaseAuth
 
 struct HealthProfileOnboardingView: View {
     @Binding var authState: AuthState
@@ -12,6 +14,7 @@ struct HealthProfileOnboardingView: View {
     @State private var totalCholesterol = ""
     @State private var hdlCholesterol = ""
     @State private var ldlCholesterol = ""
+    @StateObject private var firebaseService = HealthProfileFirebaseService()
     @State private var isSubmitting = false
     
     // Progress tracking
@@ -402,6 +405,7 @@ struct HealthProfileOnboardingView: View {
     }
     
     private func loadExistingData() {
+        // First load from local UserDefaults
         let profile = profileManager.profile
         
         if let age = profile.age {
@@ -428,6 +432,60 @@ struct HealthProfileOnboardingView: View {
         if let ldl = profile.ldlCholesterol {
             self.ldlCholesterol = String(ldl)
         }
+        
+        // Then try to load from Firebase (this will override local data if available)
+        loadHealthProfileFromFirebase()
+    }
+    
+    private func loadHealthProfileFromFirebase() {
+        firebaseService.loadHealthProfile { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let profileData):
+                    if let profileData = profileData {
+                        // Update UI with Firebase data
+                        if profileData.age > 0 {
+                            self.age = String(profileData.age)
+                        }
+                        
+                        if profileData.weight > 0 {
+                            self.weight = String(profileData.weight)
+                        }
+                        
+                        if profileData.heightFeet > 0 {
+                            self.heightFeet = String(profileData.heightFeet)
+                        }
+                        
+                        if profileData.heightInches >= 0 {
+                            self.heightInches = String(profileData.heightInches)
+                        }
+                        
+                        if profileData.bloodSugarLevel > 0 {
+                            self.bloodSugarLevel = String(profileData.bloodSugarLevel)
+                        }
+                        
+                        if profileData.cholesterolLevel > 0 {
+                            self.totalCholesterol = String(profileData.cholesterolLevel)
+                        }
+                        
+                        if profileData.hdlCholesterol > 0 {
+                            self.hdlCholesterol = String(profileData.hdlCholesterol)
+                        }
+                        
+                        if profileData.ldlCholesterol > 0 {
+                            self.ldlCholesterol = String(profileData.ldlCholesterol)
+                        }
+                        
+                        print("Health profile loaded from Firebase successfully!")
+                    } else {
+                        print("No health profile found in Firebase for current user")
+                    }
+                    
+                case .failure(let error):
+                    print("Error loading health profile from Firebase: \(error.localizedDescription)")
+                }
+            }
+        }
     }
     
     private func saveHealthProfile() {
@@ -444,10 +502,39 @@ struct HealthProfileOnboardingView: View {
         profile.ldlCholesterol = ldlCholesterol.isEmpty ? nil : Double(ldlCholesterol.trimmingCharacters(in: .whitespacesAndNewlines))
         profile.isCompleted = true
         
+        // Save to local UserDefaults via ProfileManager
         profileManager.saveProfile(profile)
+        
+        // Save to Firebase Firestore using the service
+        saveHealthProfileToFirebase(profile: profile)
         
         print("Health profile saved successfully")
         print("Profile data: Age: \(profile.age ?? 0), Weight: \(profile.weight ?? 0.0)")
+    }
+    
+    private func saveHealthProfileToFirebase(profile: UserProfile) {
+        let totalHeightInches = Double((profile.heightFeet ?? 0) * 12 + (profile.heightInches ?? 0))
+        
+        firebaseService.saveHealthProfile(
+            age: profile.age ?? 0,
+            bloodSugarLevel: profile.bloodSugarLevel ?? 0.0,
+            cholesterolLevel: profile.totalCholesterol ?? 0.0,
+            hdlCholesterol: profile.hdlCholesterol ?? 0.0,
+            ldlCholesterol: profile.ldlCholesterol ?? 0.0,
+            height: totalHeightInches,
+            weight: profile.weight ?? 0.0,
+            heightFeet: profile.heightFeet ?? 0,
+            heightInches: profile.heightInches ?? 0
+        ) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success():
+                    print("Health profile successfully saved to Firebase!")
+                case .failure(let error):
+                    print("Error saving health profile to Firebase: \(error.localizedDescription)")
+                }
+            }
+        }
     }
 }
 
