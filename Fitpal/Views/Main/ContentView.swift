@@ -3,21 +3,26 @@ import SwiftUI
 struct ContentView: View {
     @State private var authState: AuthState = .login
     @StateObject private var authService = AuthenticationService()
+    @StateObject private var profileManager = UserProfileManager()
     
     var body: some View {
         NavigationView {
             Group {
-                if authService.isAuthenticated {
+                if authService.isAuthenticated && profileManager.profile.isCompleted {
+                    // User is fully authenticated and has completed health profile
                     MainTabView()
                 } else if authService.requiresBiometricAuth {
+                    // User needs biometric authentication
                     BiometricPromptView()
                 } else {
-                    WelcomeView()
+                    // Handle authentication flow (login, signup, health profile onboarding)
+                    AuthenticationFlowView()
                 }
             }
             .navigationBarHidden(true)
         }
         .environmentObject(authService) // Provide auth service to child views
+        .environmentObject(profileManager) // Provide profile manager to child views
     }
 }
 

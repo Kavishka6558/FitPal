@@ -8,6 +8,7 @@ class AuthenticationService: ObservableObject {
     @Published var errorMessage: String?
     @Published var currentUser: User?
     @Published var requiresBiometricAuth = false
+    @Published var justSignedUp = false  // Track if user just completed signup
     
     // Biometric authentication
     @Published var biometricService = BiometricAuthenticationService()
@@ -127,7 +128,8 @@ class AuthenticationService: ObservableObject {
             let result = try await Auth.auth().createUser(withEmail: email, password: password)
             DispatchQueue.main.async {
                 self.isLoading = false
-                self.isAuthenticated = true
+                self.justSignedUp = true  // Mark as just signed up
+                self.isAuthenticated = false  // Don't authenticate immediately
                 self.currentUser = result.user
             }
         } catch {
@@ -196,5 +198,13 @@ class AuthenticationService: ObservableObject {
             }
         }
         return error.localizedDescription
+    }
+    
+    // Complete the onboarding process after health profile is finished
+    func completeOnboarding() {
+        DispatchQueue.main.async {
+            self.justSignedUp = false
+            self.isAuthenticated = true
+        }
     }
 }

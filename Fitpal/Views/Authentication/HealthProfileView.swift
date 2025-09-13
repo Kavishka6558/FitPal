@@ -23,199 +23,347 @@ struct HealthProfileOnboardingView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-                // Header with progress
+        ZStack {
+            // Modern gradient background
+            LinearGradient(
+                colors: [
+                    Color.blue.opacity(0.05),
+                    Color.purple.opacity(0.03),
+                    Color.pink.opacity(0.02)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                // Modern Header with glass effect
                 VStack(spacing: 20) {
-                    Text("workouts")
-                        .font(.title2)
-                        .fontWeight(.medium)
-                        .padding(.top, 20)
-                    
-                    // Progress Card
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Complete Your health profile")
-                            .font(.headline)
-                            .foregroundColor(.white)
+                    // Title with icon
+                    HStack {
+                        ZStack {
+                            Circle()
+                                .fill(.blue.opacity(0.1))
+                                .frame(width: 44, height: 44)
+                            
+                            Image(systemName: "heart.text.clipboard")
+                                .font(.system(size: 20, weight: .semibold))
+                                .foregroundColor(.blue)
+                        }
                         
-                        // Progress Bar
-                        ProgressView(value: progressPercentage)
-                            .progressViewStyle(LinearProgressViewStyle(tint: .white))
-                            .scaleEffect(x: 1, y: 2, anchor: .center)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Health Profile")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.primary)
+                            
+                            Text("Complete your profile to get personalized insights")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        Spacer()
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.top, 20)
+                    
+                    // Modern Progress Card with glass morphism
+                    VStack(spacing: 16) {
+                        HStack {
+                            Text("Profile Completion")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.primary)
+                            
+                            Spacer()
+                            
+                            Text("\(Int(progressPercentage * 100))%")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(.blue)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(.blue.opacity(0.1))
+                                .cornerRadius(12)
+                        }
+                        
+                        // Modern Progress Bar
+                        ZStack(alignment: .leading) {
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(.gray.opacity(0.15))
+                                .frame(height: 8)
+                            
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(
+                                    LinearGradient(
+                                        colors: [.blue, .purple],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                                .frame(width: max(20, 200 * progressPercentage), height: 8)
+                                .animation(.spring(response: 0.6, dampingFraction: 0.8), value: progressPercentage)
+                        }
                     }
                     .padding(20)
-                    .background(
-                        LinearGradient(
-                            colors: [Color.blue.opacity(0.8), Color.blue],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(.white.opacity(0.2), lineWidth: 1)
                     )
-                    .cornerRadius(12)
-                    .padding(.horizontal, 20)
+                    .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 5)
+                    .padding(.horizontal, 24)
                 }
-                .background(Color.white)
                 .padding(.bottom, 30)
                 
-                // Form Content
+                // Modern Form Content
                 ScrollView {
-                    VStack(spacing: 24) {
-                        // Age Section
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Age")
-                                .font(.headline)
-                                .foregroundColor(.black)
-                            
-                            TextField("Enter your age", text: $age)
-                                .textFieldStyle(HealthProfileTextFieldStyle())
-                                .keyboardType(.numberPad)
-                        }
+                    LazyVStack(spacing: 24) {
+                        // Age Section with modern card
+                        ModernHealthField(
+                            title: "Age",
+                            icon: "calendar",
+                            value: $age,
+                            placeholder: "Enter your age",
+                            keyboardType: "numberPad",
+                            unit: "years"
+                        )
                         
-                        // Height Section
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Height")
-                                .font(.headline)
-                                .foregroundColor(.black)
+                        // Height Section with modern design
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "ruler")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundColor(.blue)
+                                    .frame(width: 24)
+                                
+                                Text("Height")
+                                    .font(.system(size: 18, weight: .semibold))
+                                    .foregroundColor(.primary)
+                            }
                             
                             HStack(spacing: 12) {
-                                TextField("5", text: $heightFeet)
-                                    .textFieldStyle(HealthProfileTextFieldStyle())
-                                    .keyboardType(.numberPad)
-                                Text("ft")
-                                    .foregroundColor(.gray)
+                                VStack(spacing: 8) {
+                                    TextField("5", text: $heightFeet)
+                                        .multilineTextAlignment(.center)
+                                        .keyboardType(.numberPad)
+                                        .padding(.vertical, 16)
+                                        .padding(.horizontal, 12)
+                                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .stroke(.gray.opacity(0.2), lineWidth: 1)
+                                        )
+                                    
+                                    Text("feet")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
                                 
-                                TextField("8", text: $heightInches)
-                                    .textFieldStyle(HealthProfileTextFieldStyle())
-                                    .keyboardType(.numberPad)
-                                Text("inch")
-                                    .foregroundColor(.gray)
+                                VStack(spacing: 8) {
+                                    TextField("8", text: $heightInches)
+                                        .multilineTextAlignment(.center)
+                                        .keyboardType(.numberPad)
+                                        .padding(.vertical, 16)
+                                        .padding(.horizontal, 12)
+                                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .stroke(.gray.opacity(0.2), lineWidth: 1)
+                                        )
+                                    
+                                    Text("inches")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
                             }
                         }
+                        .padding(20)
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16)
+                                .stroke(.white.opacity(0.2), lineWidth: 1)
+                        )
+                        .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 4)
                         
                         // Weight Section
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Weight")
-                                .font(.headline)
-                                .foregroundColor(.black)
-                            
-                            HStack {
-                                TextField("Enter your weight", text: $weight)
-                                    .textFieldStyle(HealthProfileTextFieldStyle())
-                                    .keyboardType(.decimalPad)
-                                Text("lbs")
-                                    .foregroundColor(.gray)
-                                    .padding(.trailing, 16)
-                            }
-                        }
+                        ModernHealthField(
+                            title: "Weight",
+                            icon: "scalemass",
+                            value: $weight,
+                            placeholder: "Enter your weight",
+                            keyboardType: "decimalPad",
+                            unit: "lbs"
+                        )
                         
                         // Blood Sugar Level Section
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Blood Sugar Level")
-                                .font(.headline)
-                                .foregroundColor(.black)
-                            
-                            HStack {
-                                TextField("Enter blood sugar level", text: $bloodSugarLevel)
-                                    .textFieldStyle(HealthProfileTextFieldStyle())
-                                    .keyboardType(.decimalPad)
-                                Text("mg/dl")
-                                    .foregroundColor(.gray)
-                                    .padding(.trailing, 16)
-                            }
-                            
-                            Text("Normal range: 70-100 mg/ml (fasting)")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                                .padding(.top, 4)
-                        }
+                        ModernHealthFieldWithInfo(
+                            title: "Blood Sugar Level",
+                            icon: "drop",
+                            value: $bloodSugarLevel,
+                            placeholder: "Enter blood sugar level",
+                            keyboardType: "decimalPad",
+                            unit: "mg/dL",
+                            infoText: "Normal range: 70-100 mg/dL (fasting)"
+                        )
                         
-                        // Cholesterol Section
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Cholesterol Levels")
-                                .font(.headline)
-                                .foregroundColor(.black)
-                            
-                            HStack {
-                                TextField("Total cholesterol", text: $totalCholesterol)
-                                    .textFieldStyle(HealthProfileTextFieldStyle())
-                                    .keyboardType(.decimalPad)
-                                Text("mg/dl")
-                                    .foregroundColor(.gray)
-                                    .padding(.trailing, 16)
+                        // Cholesterol Section with multiple inputs
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "heart.circle")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundColor(.red)
+                                    .frame(width: 24)
+                                
+                                Text("Cholesterol Levels")
+                                    .font(.system(size: 18, weight: .semibold))
+                                    .foregroundColor(.primary)
                             }
                             
-                            HStack(spacing: 12) {
+                            // Total Cholesterol
+                            VStack(spacing: 8) {
                                 HStack {
-                                    TextField("HDL", text: $hdlCholesterol)
-                                        .textFieldStyle(HealthProfileTextFieldStyle())
+                                    TextField("Total cholesterol", text: $totalCholesterol)
                                         .keyboardType(.decimalPad)
+                                        .padding(.vertical, 16)
+                                        .padding(.horizontal, 16)
+                                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .stroke(.gray.opacity(0.2), lineWidth: 1)
+                                        )
+                                    
                                     Text("mg/dL")
-                                        .foregroundColor(.gray)
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundColor(.secondary)
+                                        .padding(.trailing, 8)
+                                }
+                            }
+                            
+                            // HDL and LDL
+                            HStack(spacing: 12) {
+                                VStack(spacing: 8) {
+                                    TextField("HDL", text: $hdlCholesterol)
+                                        .multilineTextAlignment(.center)
+                                        .keyboardType(.decimalPad)
+                                        .padding(.vertical, 16)
+                                        .padding(.horizontal, 12)
+                                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .stroke(.gray.opacity(0.2), lineWidth: 1)
+                                        )
+                                    
+                                    Text("HDL mg/dL")
                                         .font(.caption)
+                                        .foregroundColor(.secondary)
                                 }
                                 
-                                HStack {
+                                VStack(spacing: 8) {
                                     TextField("LDL", text: $ldlCholesterol)
-                                        .textFieldStyle(HealthProfileTextFieldStyle())
+                                        .multilineTextAlignment(.center)
                                         .keyboardType(.decimalPad)
-                                    Text("mg/dL")
-                                        .foregroundColor(.gray)
+                                        .padding(.vertical, 16)
+                                        .padding(.horizontal, 12)
+                                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .stroke(.gray.opacity(0.2), lineWidth: 1)
+                                        )
+                                    
+                                    Text("LDL mg/dL")
                                         .font(.caption)
+                                        .foregroundColor(.secondary)
                                 }
                             }
                             
-                            Text("Normal total: < 200mg/dL")
+                            Text("Normal total: < 200 mg/dL")
                                 .font(.caption)
-                                .foregroundColor(.gray)
-                                .padding(.top, 4)
+                                .foregroundColor(.secondary)
+                                .padding(.top, 8)
                         }
+                        .padding(20)
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16)
+                                .stroke(.white.opacity(0.2), lineWidth: 1)
+                        )
+                        .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 4)
                         
-                        Spacer(minLength: 100)
+                        Spacer(minLength: 120)
                     }
-                    .padding(.horizontal, 20)
+                    .padding(.horizontal, 24)
                 }
                 
-                // Bottom Buttons
-                VStack(spacing: 12) {
+                // Modern Bottom Buttons
+                VStack(spacing: 16) {
+                    // Submit Button
                     Button(action: submitHealthProfile) {
-                        HStack {
+                        HStack(spacing: 12) {
                             if isSubmitting {
                                 ProgressView()
                                     .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                    .scaleEffect(0.8)
+                                    .scaleEffect(0.9)
+                            } else {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.system(size: 18, weight: .semibold))
                             }
-                            Text(isSubmitting ? "Submitting..." : "Submit")
-                                .font(.headline)
+                            
+                            Text(isSubmitting ? "Submitting..." : "Complete Profile")
+                                .font(.system(size: 17, weight: .semibold))
                         }
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(Color.blue)
-                        .cornerRadius(12)
+                        .padding(.vertical, 18)
+                        .background(
+                            LinearGradient(
+                                colors: isFormValid && !isSubmitting ? 
+                                    [.blue, .purple] : [.gray.opacity(0.6), .gray.opacity(0.4)],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .cornerRadius(16)
+                        .shadow(
+                            color: isFormValid && !isSubmitting ? .blue.opacity(0.3) : .clear,
+                            radius: 8,
+                            x: 0,
+                            y: 4
+                        )
                     }
                     .disabled(!isFormValid || isSubmitting)
-                    .opacity(isFormValid && !isSubmitting ? 1.0 : 0.6)
+                    .scaleEffect(isFormValid && !isSubmitting ? 1.0 : 0.95)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isFormValid)
                     
+                    // Skip Button
                     Button(action: skipHealthProfile) {
-                        Text("Skip for Now")
-                            .font(.headline)
-                            .foregroundColor(.gray)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
-                            .background(Color.gray.opacity(0.2))
-                            .cornerRadius(12)
+                        HStack(spacing: 8) {
+                            Image(systemName: "arrow.right.circle")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.secondary)
+                            
+                            Text("Skip for Now")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.secondary)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16)
+                                .stroke(.gray.opacity(0.2), lineWidth: 1)
+                        )
                     }
                     .disabled(isSubmitting)
+                    .opacity(isSubmitting ? 0.5 : 1.0)
                 }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 30)
-                .background(Color.white)
-            }
-            .background(Color(UIColor.systemGroupedBackground))
-            .navigationBarHidden(true)
-            .onAppear {
-                loadExistingData()
+                .padding(.horizontal, 24)
+                .padding(.bottom, 40)
             }
         }
+        .navigationBarHidden(true)
+        .onAppear {
+            loadExistingData()
+        }
+    }
     
     private var isFormValid: Bool {
         let ageValid = !age.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && 
@@ -229,27 +377,28 @@ struct HealthProfileOnboardingView: View {
     private func submitHealthProfile() {
         isSubmitting = true
         
-        // Save health profile data
+        // Save health profile data with completion status
         saveHealthProfile()
         
         // Update progress to complete
         currentStep = totalSteps
         
-        // Navigate to main app after a short delay
+        // Complete the onboarding process after a short delay
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             isSubmitting = false
-            authState = .authenticated
+            // Complete the onboarding process - this will set isAuthenticated = true
+            authService.completeOnboarding()
         }
     }
     
     private func skipHealthProfile() {
-        // Mark as completed even if skipped
+        // Mark profile as completed even if skipped
         var profile = UserProfile()
         profile.isCompleted = true
         profileManager.saveProfile(profile)
         
-        // Navigate directly to main app
-        authState = .authenticated
+        // Complete the onboarding process - this will set isAuthenticated = true
+        authService.completeOnboarding()
     }
     
     private func loadExistingData() {
@@ -302,20 +451,111 @@ struct HealthProfileOnboardingView: View {
     }
 }
 
-// Custom TextField Style
-struct HealthProfileTextFieldStyle: TextFieldStyle {
-    func _body(configuration: TextField<Self._Label>) -> some View {
-        configuration
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
-            .background(Color.gray.opacity(0.1))
-            .cornerRadius(8)
-            .font(.body)
+// Modern Health Field Components
+struct ModernHealthField: View {
+    let title: String
+    let icon: String
+    @Binding var value: String
+    let placeholder: String
+    let keyboardType: String
+    let unit: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 8) {
+                Image(systemName: icon)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.blue)
+                    .frame(width: 24)
+                
+                Text(title)
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.primary)
+            }
+            
+            HStack {
+                TextField(placeholder, text: $value)
+                    .keyboardType(keyboardType == "numberPad" ? .numberPad : keyboardType == "decimalPad" ? .decimalPad : .default)
+                    .padding(.vertical, 16)
+                    .padding(.horizontal, 16)
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(.gray.opacity(0.2), lineWidth: 1)
+                    )
+                
+                Text(unit)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.secondary)
+                    .padding(.trailing, 8)
+            }
+        }
+        .padding(20)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(.white.opacity(0.2), lineWidth: 1)
+        )
+        .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 4)
+    }
+}
+
+struct ModernHealthFieldWithInfo: View {
+    let title: String
+    let icon: String
+    @Binding var value: String
+    let placeholder: String
+    let keyboardType: String
+    let unit: String
+    let infoText: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 8) {
+                Image(systemName: icon)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.blue)
+                    .frame(width: 24)
+                
+                Text(title)
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.primary)
+            }
+            
+            HStack {
+                TextField(placeholder, text: $value)
+                    .keyboardType(keyboardType == "numberPad" ? .numberPad : keyboardType == "decimalPad" ? .decimalPad : .default)
+                    .padding(.vertical, 16)
+                    .padding(.horizontal, 16)
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(.gray.opacity(0.2), lineWidth: 1)
+                    )
+                
+                Text(unit)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.secondary)
+                    .padding(.trailing, 8)
+            }
+            
+            Text(infoText)
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .padding(.top, 4)
+        }
+        .padding(20)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(.white.opacity(0.2), lineWidth: 1)
+        )
+        .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 4)
     }
 }
 
 #Preview {
-    HealthProfileOnboardingView(authState: .constant(.login))
+    HealthProfileOnboardingView(authState: .constant(.signup))
         .environmentObject(AuthenticationService())
         .environmentObject(UserProfileManager())
 }

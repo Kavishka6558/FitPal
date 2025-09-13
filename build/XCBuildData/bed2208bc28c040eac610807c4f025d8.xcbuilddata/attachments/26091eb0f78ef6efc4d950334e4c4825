@@ -1,0 +1,4 @@
+module FirebaseAuthInternal {
+umbrella "/Users/kavishka024/Library/Developer/Xcode/DerivedData/Fitpal-fdoxbsldyawwrufegmpkqmcpndak/SourcePackages/checkouts/firebase-ios-sdk/FirebaseAuth/Sources/Public"
+export *
+}

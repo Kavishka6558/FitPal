@@ -11,6 +11,10 @@ struct AuthenticationFlowView: View {
                 LoginView(authState: $authState)
             case .signup:
                 SignupView(authState: $authState)
+            case .healthProfile:
+                HealthProfileOnboardingView(authState: $authState)
+                    .environmentObject(authService)
+                    .environmentObject(UserProfileManager())
             case .authenticated:
                 MainTabView()
             }

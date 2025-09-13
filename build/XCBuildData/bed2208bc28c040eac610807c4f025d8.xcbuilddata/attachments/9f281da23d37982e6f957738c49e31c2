@@ -1,0 +1,4 @@
+module GoogleUtilities_Network {
+umbrella "/Users/kavishka024/Library/Developer/Xcode/DerivedData/Fitpal-fdoxbsldyawwrufegmpkqmcpndak/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Network/Public"
+export *
+}

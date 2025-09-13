@@ -160,6 +160,14 @@ struct SignupView: View {
     private func handleSignup() {
         Task {
             await authService.signup(email: email, password: password, confirmPassword: confirmPassword)
+            
+            // Check if signup was successful and navigate to HealthProfileView
+            await MainActor.run {
+                if authService.justSignedUp && authService.errorMessage == nil {
+                    // Navigate to health profile onboarding for new users
+                    authState = .healthProfile
+                }
+            }
         }
     }
 }

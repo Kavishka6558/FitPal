@@ -9,6 +9,9 @@ struct WorkoutView: View {
     @State private var isRefreshing = false
     @State private var scrollOffset: CGFloat = 0
     @State private var showRoutinesView = false
+    @State private var selectedExercise: WorkoutExercise?
+    @State private var selectedWorkoutTitle: String = ""
+    @State private var showExerciseView = false
     
     enum WorkoutTab: String, CaseIterable {
         case suggested = "Suggested"
@@ -233,7 +236,14 @@ struct WorkoutView: View {
                             
                             LazyVStack(spacing: 20) {
                                 ForEach(workouts, id: \.title) { category in
-                                    ModernWorkoutCard(category: category)
+                                    ModernWorkoutCard(
+                                        category: category,
+                                        onExerciseSelected: { exercise, workoutTitle in
+                                            selectedExercise = exercise
+                                            selectedWorkoutTitle = workoutTitle
+                                            showExerciseView = true
+                                        }
+                                    )
                                         .transition(.asymmetric(
                                             insertion: .opacity.combined(with: .move(edge: .bottom)),
                                             removal: .opacity
@@ -252,7 +262,9 @@ struct WorkoutView: View {
                         HStack {
                             Spacer()
                             Button(action: {
-                                showRoutinesView = true
+                                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                                    showRoutinesView = true
+                                }
                             }) {
                                 ZStack {
                                     Circle()
@@ -269,14 +281,15 @@ struct WorkoutView: View {
                                     Image(systemName: "plus")
                                         .font(.system(size: 24, weight: .bold))
                                         .foregroundColor(.white)
+                                        .rotationEffect(.degrees(showRoutinesView ? 45 : 0))
                                 }
                                 .overlay(
                                     Circle()
                                         .stroke(.white.opacity(0.3), lineWidth: 2)
                                         .frame(width: 64, height: 64)
                                 )
-                                .scaleEffect(1.0)
-                                .animation(.spring(response: 0.3, dampingFraction: 0.6), value: selectedTab)
+                                .scaleEffect(showRoutinesView ? 0.95 : 1.0)
+                                .animation(.spring(response: 0.3, dampingFraction: 0.6), value: showRoutinesView)
                             }
                             .padding(.trailing, 30)
                             .padding(.bottom, 100)
@@ -285,8 +298,16 @@ struct WorkoutView: View {
                 }
                 .toolbar(.hidden)
                 .navigationDestination(isPresented: $showRoutinesView) {
-                    // Create a simple inline RoutinesView to avoid import issues
-                    CreateWorkoutRoutinesView()
+                    RoutinesView()
+                }
+                .navigationDestination(isPresented: $showExerciseView) {
+                    if let exercise = selectedExercise {
+                        WorkoutExerciseView(
+                            exerciseName: exercise.name,
+                            totalSets: exercise.sets,
+                            totalReps: exercise.reps
+                        )
+                    }
                 }
             }
         }
@@ -476,6 +497,7 @@ struct ModernTabSelector: View {
 struct ModernWorkoutCard: View {
     let category: WorkoutCategory
     @State private var isExpanded = false
+    let onExerciseSelected: (WorkoutExercise, String) -> Void
     
     var body: some View {
         VStack(spacing: 0) {
@@ -558,7 +580,11 @@ struct ModernWorkoutCard: View {
             if isExpanded {
                 VStack(spacing: 8) {
                     ForEach(category.exercises, id: \.name) { exercise in
-                        ModernExerciseRow(exercise: exercise)
+                        ModernExerciseRow(
+                            exercise: exercise,
+                            workoutTitle: category.title,
+                            onExerciseSelected: onExerciseSelected
+                        )
                     }
                 }
                 .padding(.horizontal, 20)
@@ -603,6 +629,8 @@ struct WorkoutStatItem: View {
 
 struct ModernExerciseRow: View {
     let exercise: WorkoutExercise
+    let workoutTitle: String
+    let onExerciseSelected: (WorkoutExercise, String) -> Void
     
     var body: some View {
         HStack(spacing: 12) {
@@ -635,16 +663,22 @@ struct ModernExerciseRow: View {
             
             Spacer()
             
-            Button(action: {}) {
+            Button(action: {
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                    onExerciseSelected(exercise, workoutTitle)
+                }
+            }) {
                 Circle()
-                    .fill(.gray.opacity(0.1))
-                    .frame(width: 28, height: 28)
+                    .fill(.blue.opacity(0.1))
+                    .frame(width: 32, height: 32)
                     .overlay(
                         Image(systemName: "play.fill")
-                            .font(.system(size: 10, weight: .semibold))
-                            .foregroundColor(.secondary)
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(.blue)
                     )
             }
+            .scaleEffect(1.0)
+            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: true)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)

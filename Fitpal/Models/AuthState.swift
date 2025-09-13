@@ -4,5 +4,6 @@ import Foundation
 enum AuthState {
     case login
     case signup
+    case healthProfile
     case authenticated
 }
