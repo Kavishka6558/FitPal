@@ -20,9 +20,8 @@ struct RoutinesView: View {
             // Base gradient with warmer, more vibrant colors
             LinearGradient(
                 colors: [
-                    Color(.systemOrange).opacity(0.12),
-                    Color(.systemRed).opacity(0.08),
-                    Color(.systemPink).opacity(0.06),
+                    Color(.systemBlue).opacity(0.12),
+                    Color(.systemPink).opacity(0.08),
                     Color.clear
                 ],
                 startPoint: .topLeading,
@@ -32,7 +31,7 @@ struct RoutinesView: View {
             // Accent overlay with energetic colors
             RadialGradient(
                 colors: [
-                    Color.yellow.opacity(0.08),
+                    Color.blue.opacity(0.08),
                     Color.clear
                 ],
                 center: .topTrailing,
@@ -56,41 +55,40 @@ struct RoutinesView: View {
     
     private var modernHeaderView: some View {
         VStack(spacing: 12) {
-            HStack {
-                Button(action: {
-                    dismiss()
-                }) {
-                    ZStack {
-                        Circle()
-                            .fill(.ultraThinMaterial)
-                            .frame(width: 50, height: 50)
-                            .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 5)
-                        
-                        Circle()
-                            .stroke(
-                                LinearGradient(
-                                    colors: [.white.opacity(0.3), .clear],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ),
-                                lineWidth: 1
-                            )
-                            .frame(width: 50, height: 50)
-                        
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 18, weight: .bold, design: .rounded))
-                            .foregroundStyle(
-                                LinearGradient(
-                                    colors: [.primary, .secondary],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
+            ZStack {
+                // Leading back button
+                HStack {
+                    Button(action: { dismiss() }) {
+                        ZStack {
+                            Circle()
+                                .fill(.ultraThinMaterial)
+                                .frame(width: 50, height: 50)
+                                .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 5)
+                            Circle()
+                                .stroke(
+                                    LinearGradient(
+                                        colors: [.white.opacity(0.3), .clear],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ),
+                                    lineWidth: 1
                                 )
-                            )
+                                .frame(width: 50, height: 50)
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 18, weight: .bold, design: .rounded))
+                                .foregroundStyle(
+                                    LinearGradient(
+                                        colors: [.primary, .secondary],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                        }
                     }
+                    Spacer()
                 }
                 
-                Spacer()
-                
+                // Centered title/subtitle
                 VStack(spacing: 2) {
                     Text("Workout Builder")
                         .font(.system(size: 18, weight: .bold, design: .rounded))
@@ -101,38 +99,11 @@ struct RoutinesView: View {
                                 endPoint: .trailing
                             )
                         )
-                    
                     Text("Craft Your Routine")
                         .font(.system(size: 13, weight: .medium, design: .rounded))
                         .foregroundColor(.secondary)
                 }
-                
-                Spacer()
-                
-                // Floating accent decoration with fitness theme
-                ZStack {
-                    Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: [.orange.opacity(0.3), .red.opacity(0.2)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .frame(width: 50, height: 50)
-                        .blur(radius: 8)
-                    
-                    Image(systemName: "flame.fill")
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(
-                            LinearGradient(
-                                colors: [.orange, .red],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .shadow(color: .orange.opacity(0.6), radius: 8, x: 0, y: 2)
-                }
+                .frame(maxWidth: .infinity)
             }
             .padding(.horizontal, 20)
             .padding(.top, 5)
@@ -185,12 +156,14 @@ struct RoutinesView: View {
                 .ignoresSafeArea()
             
             ScrollView {
-                VStack(spacing: 20) {
+                // Reduce overall vertical spacing to tighten gap under header even more
+                VStack(spacing: 8) {
                     modernHeaderView
                         .padding(.horizontal, 4)
                     
                     // Enhanced Hero Section
-                    VStack(alignment: .leading, spacing: 12) {
+                    // Reduce inner spacing to bring description closer to header
+                    VStack(alignment: .leading, spacing: 2) {
                         HStack {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("")
@@ -218,12 +191,12 @@ struct RoutinesView: View {
                         }
                         
                         Text("Customize your workout with precision and style")
-                            .font(.system(size: 16, weight: .medium, design: .rounded))
+                            .font(.system(size: 14, weight: .medium, design: .rounded))
                             .foregroundColor(.secondary)
-                            .padding(.top, 2)
+                            .padding(.top, -2)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 20)
+                    .padding(.horizontal, 40)
                     
                     // Workout Configuration Section
                     VStack(spacing: 14) {
@@ -283,7 +256,7 @@ struct RoutinesView: View {
                                                     endPoint: .bottomTrailing
                                                 )
                                             )
-                                            .frame(width: 40, height: 40)
+                                            .frame(width: 40, height: 50)
                                     
                                     if isSavingWorkout {
                                         ProgressView()
@@ -301,7 +274,7 @@ struct RoutinesView: View {
                                         .font(.system(size: 18, weight: .bold, design: .rounded))
                                         .foregroundColor(.white)
                                     
-                                    Text(isSavingWorkout ? "Adding to Firebase..." : "Add to your routine collection")
+                                    Text(isSavingWorkout ? "Adding to Firebase..." : "Add to your Workout")
                                         .font(.system(size: 13, weight: .medium, design: .rounded))
                                         .foregroundColor(.white.opacity(0.8))
                                 }
@@ -344,52 +317,15 @@ struct RoutinesView: View {
                                         lineWidth: 1
                                     )
                             )
-                            .shadow(color: .red.opacity(0.4), radius: 20, x: 0, y: 10)
-                            .shadow(color: .pink.opacity(0.3), radius: 40, x: 0, y: 20)
+                            .shadow(color: .red.opacity(0), radius: 20, x: 0, y: 10)
+                            .shadow(color: .pink.opacity(0), radius: 40, x: 0, y: 20)
                         }
                         .disabled(isSavingWorkout)
                         .opacity(isSavingWorkout ? 0.8 : 1.0)
                         
-                        // Test Notification Button (for debugging)
-                        Button(action: {
-                            notificationService.showWorkoutSavedNotification(
-                                workoutName: "Test",
-                                exerciseName: "Test Exercise",
-                                sets: 3,
-                                reps: 10
-                            )
-                        }) {
-                            HStack {
-                                Image(systemName: "bell.fill")
-                                Text("Test Notification")
-                                    .font(.system(size: 14, weight: .medium, design: .rounded))
-                            }
-                            .foregroundColor(.orange)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
-                            .background(.orange.opacity(0.1))
-                            .cornerRadius(8)
-                        }
-                        
-                        // Cancel Button with Modern Style
-                        Button(action: {
-                            dismiss()
-                        }) {
-                            HStack {
-                                Text("Cancel")
-                                    .font(.system(size: 16, weight: .semibold, design: .rounded))
-                                    .foregroundColor(.secondary)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(.ultraThinMaterial)
-                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                    .stroke(.white.opacity(0.1), lineWidth: 1)
-                            )
-                        }
                     }
+                    // Add separation from Sets/Reps configuration above
+                    .padding(.top, 14)
                     .padding(.horizontal, 20)
                 }
                 .padding(.bottom, 12)

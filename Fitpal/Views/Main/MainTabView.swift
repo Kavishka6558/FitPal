@@ -19,7 +19,9 @@ struct MainTabView: View {
                 }
                 .tag(1)
             
-            WorkoutView()
+            NavigationStack {
+                WorkoutView()
+            }
                 .tabItem {
                     Image(systemName: "dumbbell")
                     Text("Workout")

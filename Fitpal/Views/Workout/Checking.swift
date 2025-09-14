@@ -470,6 +470,7 @@ enum WorkoutAnalysisError: Error, LocalizedError {
 }
 
 struct WorkoutExerciseView: View {
+    @Environment(\.dismiss) private var dismiss
     let exerciseName: String
     let totalSets: Int
     let totalReps: Int
@@ -540,23 +541,6 @@ struct WorkoutExerciseView: View {
                         formatTime: formatTime
                     )
                     
-                    // Modern Action Buttons
-                    HStack(spacing: 16) {
-                        WorkoutActionButton(
-                            title: "Steps",
-                            icon: "list.number",
-                            gradient: [Color.orange, Color.red],
-                            action: {}
-                        )
-                        
-                        WorkoutActionButton(
-                            title: "Safety Tips",
-                            icon: "shield.checkered",
-                            gradient: [Color.pink, Color.purple],
-                            action: {}
-                        )
-                    }
-                    
                     // Enhanced Form Analysis with Video Upload
                     WorkoutAnalysisCard(
                         exerciseName: exerciseName,
@@ -572,19 +556,7 @@ struct WorkoutExerciseView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                VStack(spacing: 2) {
-                    Text("Workout")
-                        .font(.system(size: 18, weight: .semibold, design: .rounded))
-                        .foregroundColor(.primary)
-                    
-                    Text("Set \(timerVM.currentSet) of \(totalSets)")
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
-                        .foregroundColor(.secondary)
-                }
-            }
-        }
+        .navigationBarHidden(true)
         .sheet(isPresented: $showingVideoAnalysis) {
             WorkoutVideoAnalysisView(
                 analysisVM: analysisVM,
@@ -1186,15 +1158,6 @@ struct WorkoutVideoAnalysisView: View {
                 Spacer()
             }
             .padding(.all, 20)
-            .navigationTitle("Form Analysis")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                }
-            }
         }
     }
 }
@@ -1204,8 +1167,7 @@ struct WorkoutAnalysisResultView: View {
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
-        NavigationView {
-            ScrollView {
+        ScrollView {
                 VStack(spacing: 24) {
                     // Header with score
                     VStack(spacing: 16) {
@@ -1301,16 +1263,6 @@ struct WorkoutAnalysisResultView: View {
                 }
                 .padding(.all, 20)
             }
-            .navigationTitle("Analysis Results")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                }
-            }
-        }
     }
     
     private var scoreColor: Color {

@@ -17,14 +17,6 @@ struct HealthProfileOnboardingView: View {
     @StateObject private var firebaseService = HealthProfileFirebaseService()
     @State private var isSubmitting = false
     
-    // Progress tracking
-    @State private var currentStep = 1
-    private let totalSteps = 6
-    
-    var progressPercentage: Double {
-        return Double(currentStep) / Double(totalSteps)
-    }
-    
     var body: some View {
         ZStack {
             // Modern gradient background
@@ -40,86 +32,82 @@ struct HealthProfileOnboardingView: View {
             .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Modern Header with glass effect
-                VStack(spacing: 20) {
-                    // Title with icon
-                    HStack {
-                        ZStack {
-                            Circle()
-                                .fill(.blue.opacity(0.1))
-                                .frame(width: 44, height: 44)
-                            
-                            Image(systemName: "heart.text.clipboard")
-                                .font(.system(size: 20, weight: .semibold))
-                                .foregroundColor(.blue)
-                        }
-                        
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Health Profile")
-                                .font(.title2)
-                                .fontWeight(.bold)
-                                .foregroundColor(.primary)
-                            
-                            Text("Complete your profile to get personalized insights")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                        
-                        Spacer()
-                    }
-                    .padding(.horizontal, 24)
-                    .padding(.top, 20)
-                    
-                    // Modern Progress Card with glass morphism
+                // Modern Header with enhanced design
+                VStack(spacing: 32) {
+                    // Enhanced title section
                     VStack(spacing: 16) {
-                        HStack {
-                            Text("Profile Completion")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(.primary)
+                        ZStack {
+                            // Background glow effect
+                            Circle()
+                                .fill(
+                                    RadialGradient(
+                                        colors: [.blue.opacity(0.3), .blue.opacity(0.1), .clear],
+                                        center: .center,
+                                        startRadius: 0,
+                                        endRadius: 50
+                                    )
+                                )
+                                .frame(width: 100, height: 100)
+                                .blur(radius: 10)
                             
-                            Spacer()
-                            
-                            Text("\(Int(progressPercentage * 100))%")
-                                .font(.system(size: 14, weight: .bold))
-                                .foregroundColor(.blue)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
-                                .background(.blue.opacity(0.1))
-                                .cornerRadius(12)
+                            // Main icon container
+                            ZStack {
+                                Circle()
+                                    .fill(.ultraThinMaterial)
+                                    .frame(width: 70, height: 70)
+                                    .shadow(color: .blue.opacity(0.3), radius: 15, x: 0, y: 8)
+                                
+                                Circle()
+                                    .stroke(
+                                        LinearGradient(
+                                            colors: [.blue.opacity(0.6), .purple.opacity(0.4)],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        ),
+                                        lineWidth: 2
+                                    )
+                                    .frame(width: 70, height: 70)
+                                
+                                Image(systemName: "heart.text.clipboard.fill")
+                                    .font(.system(size: 28, weight: .medium))
+                                    .foregroundStyle(
+                                        LinearGradient(
+                                            colors: [.blue, .purple],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                            }
                         }
                         
-                        // Modern Progress Bar
-                        ZStack(alignment: .leading) {
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(.gray.opacity(0.15))
-                                .frame(height: 8)
-                            
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(
+                        VStack(spacing: 8) {
+                            Text("Create Your Health Profile")
+                                .font(.system(size: 28, weight: .bold, design: .rounded))
+                                .foregroundStyle(
                                     LinearGradient(
-                                        colors: [.blue, .purple],
+                                        colors: [.primary, .primary.opacity(0.8)],
                                         startPoint: .leading,
                                         endPoint: .trailing
                                     )
                                 )
-                                .frame(width: max(20, 200 * progressPercentage), height: 8)
-                                .animation(.spring(response: 0.6, dampingFraction: 0.8), value: progressPercentage)
+                                .multilineTextAlignment(.center)
+                            
+                            Text("Help us personalize your fitness journey with your health information")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.center)
+                                .lineLimit(2)
+                                .padding(.horizontal, 20)
                         }
                     }
-                    .padding(20)
-                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(.white.opacity(0.2), lineWidth: 1)
-                    )
-                    .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 5)
-                    .padding(.horizontal, 24)
                 }
-                .padding(.bottom, 30)
+                .padding(.horizontal, 24)
+                .padding(.top, 40)
+                .padding(.bottom, 40)
                 
-                // Modern Form Content
+                // Modern Form Content with enhanced styling
                 ScrollView {
-                    LazyVStack(spacing: 24) {
+                    LazyVStack(spacing: 20) {
                         // Age Section with modern card
                         ModernHealthField(
                             title: "Age",
@@ -296,62 +284,114 @@ struct HealthProfileOnboardingView: View {
                     .padding(.horizontal, 24)
                 }
                 
-                // Modern Bottom Buttons
-                VStack(spacing: 16) {
-                    // Submit Button
+                // Enhanced Modern Bottom Buttons
+                VStack(spacing: 20) {
+                    // Submit Button with enhanced design
                     Button(action: submitHealthProfile) {
                         HStack(spacing: 12) {
-                            if isSubmitting {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                    .scaleEffect(0.9)
-                            } else {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .font(.system(size: 18, weight: .semibold))
+                            ZStack {
+                                Circle()
+                                    .fill(.white.opacity(0.2))
+                                    .frame(width: 36, height: 36)
+                                
+                                if isSubmitting {
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                        .scaleEffect(0.8)
+                                } else {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .font(.system(size: 20, weight: .semibold))
+                                        .foregroundColor(.white)
+                                }
                             }
                             
-                            Text(isSubmitting ? "Submitting..." : "Complete Profile")
-                                .font(.system(size: 17, weight: .semibold))
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(isSubmitting ? "Creating Profile..." : "Complete Health Profile")
+                                    .font(.system(size: 18, weight: .bold))
+                                    .foregroundColor(.white)
+                                
+                                Text(isSubmitting ? "Saving your information" : "Start your personalized journey")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.white.opacity(0.8))
+                            }
+                            
+                            Spacer()
+                            
+                            if !isSubmitting {
+                                Image(systemName: "arrow.right")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundColor(.white.opacity(0.8))
+                            }
                         }
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 20)
                         .padding(.vertical, 18)
                         .background(
-                            LinearGradient(
-                                colors: isFormValid && !isSubmitting ? 
-                                    [.blue, .purple] : [.gray.opacity(0.6), .gray.opacity(0.4)],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
+                            ZStack {
+                                LinearGradient(
+                                    colors: isFormValid && !isSubmitting ? 
+                                        [.blue, .purple, .pink] : [.gray.opacity(0.6), .gray.opacity(0.4)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                                
+                                // Subtle overlay for depth
+                                LinearGradient(
+                                    colors: [.white.opacity(0.1), .clear, .black.opacity(0.1)],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            }
                         )
-                        .cornerRadius(16)
+                        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                .stroke(
+                                    LinearGradient(
+                                        colors: [.white.opacity(0.3), .clear],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ),
+                                    lineWidth: 1
+                                )
+                        )
                         .shadow(
-                            color: isFormValid && !isSubmitting ? .blue.opacity(0.3) : .clear,
-                            radius: 8,
+                            color: isFormValid && !isSubmitting ? .blue.opacity(0.4) : .clear,
+                            radius: 20,
                             x: 0,
-                            y: 4
+                            y: 10
+                        )
+                        .shadow(
+                            color: isFormValid && !isSubmitting ? .purple.opacity(0.3) : .clear,
+                            radius: 40,
+                            x: 0,
+                            y: 20
                         )
                     }
                     .disabled(!isFormValid || isSubmitting)
                     .scaleEffect(isFormValid && !isSubmitting ? 1.0 : 0.95)
                     .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isFormValid)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSubmitting)
                     
-                    // Skip Button
+                    // Skip Button with modern styling
                     Button(action: skipHealthProfile) {
-                        HStack(spacing: 8) {
+                        HStack(spacing: 12) {
                             Image(systemName: "arrow.right.circle")
-                                .font(.system(size: 16, weight: .medium))
+                                .font(.system(size: 18, weight: .medium))
                                 .foregroundColor(.secondary)
                             
                             Text("Skip for Now")
-                                .font(.system(size: 16, weight: .medium))
+                                .font(.system(size: 16, weight: .semibold))
                                 .foregroundColor(.secondary)
+                            
+                            Spacer()
                         }
-                        .frame(maxWidth: .infinity)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 20)
                         .padding(.vertical, 16)
-                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
                         .overlay(
-                            RoundedRectangle(cornerRadius: 16)
+                            RoundedRectangle(cornerRadius: 16, style: .continuous)
                                 .stroke(.gray.opacity(0.2), lineWidth: 1)
                         )
                     }
@@ -359,7 +399,7 @@ struct HealthProfileOnboardingView: View {
                     .opacity(isSubmitting ? 0.5 : 1.0)
                 }
                 .padding(.horizontal, 24)
-                .padding(.bottom, 40)
+                .padding(.bottom, 50)
             }
         }
         .navigationBarHidden(true)
@@ -382,9 +422,6 @@ struct HealthProfileOnboardingView: View {
         
         // Save health profile data with completion status
         saveHealthProfile()
-        
-        // Update progress to complete
-        currentStep = totalSteps
         
         // Complete the onboarding process after a short delay
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {

@@ -83,23 +83,6 @@ struct HomeView: View {
                                 }
                                 .scaleEffect(showProfile ? 0.95 : 1.0)
                                 .animation(.easeInOut(duration: 0.1), value: showProfile)
-                                
-                                // Notification Button with glassmorphism
-                                Button(action: { showNotifications.toggle() }) {
-                                    Circle()
-                                        .fill(.ultraThinMaterial)
-                                        .frame(width: 52, height: 52)
-                                        .overlay(
-                                            Circle()
-                                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                                        )
-                                        .overlay(
-                                            Image(systemName: "bell.badge")
-                                                .font(.title3)
-                                                .foregroundStyle(.orange.gradient)
-                                        )
-                                        .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
-                                }
                             }
                         }
                     
@@ -179,7 +162,7 @@ struct HomeView: View {
                                                 endPoint: .bottomTrailing
                                             )
                                         )
-                                        .frame(height: 160)
+                                        .frame(height: 110)
                                         .overlay(
                                             RoundedRectangle(cornerRadius: 24, style: .continuous)
                                                 .stroke(.white.opacity(0.2), lineWidth: 1)
@@ -198,37 +181,10 @@ struct HomeView: View {
                                                     .foregroundColor(.white.opacity(0.8))
                                             }
                                             
-                                            HStack {
-                                                Image(systemName: "clock")
-                                                    .foregroundColor(.white.opacity(0.8))
-                                                Text("30 min")
-                                                    .font(.caption)
-                                                    .fontWeight(.medium)
-                                                    .foregroundColor(.white.opacity(0.8))
-                                                
-                                                Image(systemName: "flame")
-                                                    .foregroundColor(.white.opacity(0.8))
-                                                    .padding(.leading, 8)
-                                                Text("250 cal")
-                                                    .font(.caption)
-                                                    .fontWeight(.medium)
-                                                    .foregroundColor(.white.opacity(0.8))
-                                            }
-                                            
                                             Spacer()
                                         }
                                         
                                         Spacer()
-                                        
-                                        // Modern workout icon
-                                        Circle()
-                                            .fill(.white.opacity(0.2))
-                                            .frame(width: 80, height: 80)
-                                            .overlay(
-                                                Image(systemName: "figure.strengthtraining.traditional")
-                                                    .font(.system(size: 40, weight: .medium))
-                                                    .foregroundColor(.white)
-                                            )
                                     }
                                     .padding(24)
                                 }

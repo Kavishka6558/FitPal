@@ -24,21 +24,6 @@ struct BMICalculatorSimpleView: View {
     private var headerView: some View {
         VStack(spacing: 16) {
             HStack {
-                Button(action: {
-                    dismiss()
-                }) {
-                    Circle()
-                        .fill(.ultraThinMaterial)
-                        .frame(width: 44, height: 44)
-                        .overlay(
-                            Image(systemName: "chevron.left")
-                                .font(.title3)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.primary)
-                        )
-                        .shadow(color: .black.opacity(0.1), radius: 6, x: 0, y: 3)
-                }
-                
                 Spacer()
                 
                 VStack(spacing: 2) {
@@ -53,15 +38,6 @@ struct BMICalculatorSimpleView: View {
                 }
                 
                 Spacer()
-                
-                Circle()
-                    .fill(.orange.opacity(0.1))
-                    .frame(width: 44, height: 44)
-                    .overlay(
-                        Image(systemName: "figure.walk")
-                            .font(.title3)
-                            .foregroundStyle(.orange.gradient)
-                    )
             }
             
             VStack(spacing: 8) {

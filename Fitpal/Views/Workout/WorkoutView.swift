@@ -14,6 +14,8 @@ struct WorkoutView: View {
     @State private var selectedExercise: WorkoutExercise?
     @State private var selectedWorkoutTitle: String = ""
     @State private var showExerciseView = false
+    @State private var showCheckingView = false
+    @State private var selectedWorkoutCategory: WorkoutCategory?
     
     enum WorkoutTab: String, CaseIterable {
         case suggested = "Suggested"
@@ -170,7 +172,7 @@ struct WorkoutView: View {
                     ScrollView {
                         LazyVStack(spacing: 0) {
                             // Header section
-                            VStack(spacing: 24) {
+                            VStack(spacing: 16) {
                                 // Navigation header
                                 HStack {
                                     Button(action: { dismiss() }) {
@@ -192,7 +194,7 @@ struct WorkoutView: View {
                                             .font(.system(size: 28, weight: .bold, design: .rounded))
                                             .foregroundStyle(
                                                 LinearGradient(
-                                                    colors: [Color.primary, Color.blue],
+                                                    colors: [Color.primary, Color.black],
                                                     startPoint: .leading,
                                                     endPoint: .trailing
                                                 )
@@ -227,39 +229,37 @@ struct WorkoutView: View {
                                     .disabled(isRefreshing)
                                     .disabled(isRefreshing)
                                 }
-                                .padding(.horizontal, 24)
-                                .padding(.top, max(0, geometry.safeAreaInsets.top))
+                                .padding(.horizontal, 20)
+                                .padding(.top, max(0, geometry.safeAreaInsets.top - 30))
                                 
                                 // Date selector with modern design
                                 ModernDateSelectorView(
                                     selectedDate: $selectedDate,
                                     showCalendar: $showCalendar
                                 )
-                                .padding(.horizontal, 24)
+                                .padding(.horizontal, 20)
                             }
-                            .padding(.top, 20)
                             
-                            // Tab selector with improved design
-                            ModernTabSelector(selectedTab: $selectedTab)
-                                .padding(.horizontal, 24)
-                                .padding(.top, 32)
-                            
+            // Tab selector with improved design
+            ModernTabSelector(selectedTab: $selectedTab)
+                .padding(.horizontal, 20)
+                .padding(.top, 17)
                             // Workout content
                             let workouts = selectedTab == .suggested ? suggestedWorkouts : myWorkouts
                             
                             if selectedTab == .suggested && isRefreshing && workouts.isEmpty {
                                 // Loading state for refreshing suggestions
-                                VStack(spacing: 24) {
+                                VStack(spacing: 16) {
                                     ForEach(0..<3, id: \.self) { _ in
                                         WorkoutLoadingCard()
                                     }
                                 }
-                                .padding(.horizontal, 24)
-                                .padding(.top, 24)
+                                .padding(.horizontal, 20)
+                                .padding(.top, 18)
                                 
                             } else if selectedTab == .suggested && workouts.isEmpty {
                                 // Empty state for suggested workouts
-                                VStack(spacing: 16) {
+                                VStack(spacing: 12) {
                                     Image(systemName: "brain.head.profile")
                                         .font(.system(size: 48, weight: .light))
                                         .foregroundColor(.secondary.opacity(0.5))
@@ -272,15 +272,15 @@ struct WorkoutView: View {
                                         .font(.system(size: 14, weight: .medium))
                                         .foregroundColor(.secondary)
                                         .multilineTextAlignment(.center)
-                                        .padding(.horizontal, 40)
+                                        .padding(.horizontal, 30)
                                     
                                     Button("Load Workouts") {
                                         refreshWorkouts()
                                     }
                                     .font(.system(size: 16, weight: .semibold))
                                     .foregroundColor(.white)
-                                    .padding(.horizontal, 24)
-                                    .padding(.vertical, 12)
+                                    .padding(.horizontal, 20)
+                                    .padding(.vertical, 10)
                                     .background(
                                         LinearGradient(
                                             colors: [.purple, .pink],
@@ -293,18 +293,23 @@ struct WorkoutView: View {
                                     .disabled(isRefreshing)
                                     .opacity(isRefreshing ? 0.7 : 1.0)
                                 }
-                                .padding(.horizontal, 24)
-                                .padding(.top, 60)
+                                .padding(.horizontal, 20)
+                                .padding(.top, 40)
                                 
                             } else {
-                                LazyVStack(spacing: 20) {
+                                LazyVStack(spacing: 14) {
                                     ForEach(workouts, id: \.title) { category in
                                         ModernWorkoutCard(
                                             category: category,
                                             onExerciseSelected: { exercise, workoutTitle in
+                                                print("🎯 Exercise selected: \(exercise.name) from \(workoutTitle)")
                                                 selectedExercise = exercise
                                                 selectedWorkoutTitle = workoutTitle
-                                                showExerciseView = true
+                                                showCheckingView = true
+                                                print("🎯 showCheckingView set to: \(showCheckingView)")
+                                            },
+                                            onWorkoutSelected: { _ in
+                                                // Removed workout category navigation
                                             }
                                         )
                                             .transition(.asymmetric(
@@ -313,9 +318,9 @@ struct WorkoutView: View {
                                             ))
                                     }
                                 }
-                                .padding(.horizontal, 24)
-                                .padding(.top, 24)
-                                .padding(.bottom, 120) // Space for floating button
+                                .padding(.horizontal, 20)
+                                .padding(.top, 18)
+                                .padding(.bottom, 100) // Space for floating button
                             }
                         }
                     }
@@ -327,22 +332,6 @@ struct WorkoutView: View {
                             Spacer()
                             
                             VStack(spacing: 12) {
-                                // Create workout label
-                                Text("Create Workout")
-                                    .font(.system(size: 14, weight: .semibold, design: .rounded))
-                                    .foregroundColor(.white)
-                                    .padding(.horizontal, 16)
-                                    .padding(.vertical, 8)
-                                    .background(
-                                        Capsule()
-                                            .fill(.ultraThinMaterial.opacity(0.8))
-                                            .overlay(
-                                                Capsule()
-                                                    .stroke(.white.opacity(0.2), lineWidth: 1)
-                                            )
-                                    )
-                                    .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
-                                
                                 Button(action: {
                                     withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                                         showRoutinesView = true
@@ -390,6 +379,7 @@ struct WorkoutView: View {
                             .accessibilityLabel("Create workout")
                             .accessibilityHint("Navigate to create a new workout routine")
                             }
+                            
                             .padding(.trailing, 30)
                             .padding(.bottom, 100)
                         }
@@ -402,6 +392,23 @@ struct WorkoutView: View {
                 }
                 .navigationDestination(isPresented: $showRoutinesView) {
                     RoutinesView()
+                }
+                .navigationDestination(isPresented: $showCheckingView) {
+                    if let exercise = selectedExercise {
+                        // Navigate to existing Checking page
+                        WorkoutExerciseView(
+                            exerciseName: exercise.name,
+                            totalSets: exercise.sets,
+                            totalReps: exercise.reps
+                        )
+                        .onAppear {
+                            print("🚀 CheckingView navigation successful")
+                            print("🚀 Exercise: \(exercise.name), Sets: \(exercise.sets), Reps: \(exercise.reps)")
+                        }
+                    } else {
+                        Text("Error: No exercise selected")
+                            .foregroundColor(.red)
+                    }
                 }
                 .navigationDestination(isPresented: $showExerciseView) {
                     if let exercise = selectedExercise {
@@ -591,7 +598,7 @@ struct ModernTabSelector: View {
     @Binding var selectedTab: WorkoutView.WorkoutTab
     
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 6) {
             ForEach(WorkoutView.WorkoutTab.allCases, id: \.self) { tab in
                 Button(action: {
                     withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
@@ -602,7 +609,7 @@ struct ModernTabSelector: View {
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(selectedTab == tab ? .white : .primary)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
+                        .padding(.vertical, 12)
                         .background(
                             selectedTab == tab ? 
                             LinearGradient(
@@ -637,6 +644,7 @@ struct ModernWorkoutCard: View {
     let category: WorkoutCategory
     @State private var isExpanded = false
     let onExerciseSelected: (WorkoutExercise, String) -> Void
+    let onWorkoutSelected: (WorkoutCategory) -> Void
     
     var body: some View {
         VStack(spacing: 0) {
@@ -646,19 +654,19 @@ struct ModernWorkoutCard: View {
                     isExpanded.toggle()
                 }
             }) {
-                HStack(spacing: 16) {
+                HStack(spacing: 12) {
                     // Icon
                     ZStack {
                         Circle()
                             .fill(category.iconColor.opacity(0.15))
-                            .frame(width: 56, height: 56)
+                            .frame(width: 50, height: 50)
                         
                         Image(systemName: category.icon)
-                            .font(.system(size: 24, weight: .semibold))
+                            .font(.system(size: 20, weight: .semibold))
                             .foregroundColor(category.iconColor)
                     }
                     
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: 6) {
                         HStack {
                             Text(category.title)
                                 .font(.system(size: 18, weight: .bold))
@@ -689,18 +697,6 @@ struct ModernWorkoutCard: View {
                             }
                             
                             Spacer()
-                            
-                            // Difficulty badge
-                            HStack(spacing: 4) {
-                                Image(systemName: category.difficulty.icon)
-                                    .font(.system(size: 10, weight: .bold))
-                                Text(category.difficulty.rawValue)
-                                    .font(.system(size: 11, weight: .semibold))
-                            }
-                            .foregroundColor(category.difficulty.color)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(category.difficulty.color.opacity(0.15), in: RoundedRectangle(cornerRadius: 8))
                         }
                         
                         // Health focus indicator for AI-generated workouts
@@ -754,12 +750,12 @@ struct ModernWorkoutCard: View {
                         Spacer()
                     }
                 }
-                .padding(20)
+                .padding(16)
             }
             
             // Exercise list (expandable)
             if isExpanded {
-                VStack(spacing: 8) {
+                VStack(spacing: 6) {
                     ForEach(category.exercises, id: \.name) { exercise in
                         ModernExerciseRow(
                             exercise: exercise,
@@ -768,8 +764,8 @@ struct ModernWorkoutCard: View {
                         )
                     }
                 }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 20)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
                 .transition(.asymmetric(
                     insertion: .opacity.combined(with: .move(edge: .top)),
                     removal: .opacity
@@ -1570,7 +1566,7 @@ struct WorkoutLoadingCard: View {
                             .animation(.easeInOut(duration: 1.4).repeatForever(autoreverses: true), value: isAnimating)
                     )
             }
-            .padding(20)
+            .padding(16)
         }
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
         .overlay(
