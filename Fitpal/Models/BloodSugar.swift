@@ -227,7 +227,6 @@ enum MealTiming: String, CaseIterable, Codable {
     }
 }
 
-// MARK: - Sample Data
 extension BloodSugarReading {
     static let sampleData: [BloodSugarReading] = [
         BloodSugarReading(

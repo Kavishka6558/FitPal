@@ -24,14 +24,16 @@ class BiometricAuthenticationService: ObservableObject {
     private let passwordKey = "biometric_password"
     
     init() {
+        print("🚀 BiometricAuthenticationService initializing...")
         checkBiometricAvailability()
         loadBiometricSettings()
         setupAppLifecycleObservers()
         
         // Debug log
-        print("BiometricAuthenticationService initialized")
-        print("Biometric type detected: \(biometricType)")
-        print("Biometric enabled: \(isBiometricEnabled)")
+        print("✅ BiometricAuthenticationService initialized")
+        print("🎯 Biometric type detected: \(biometricType)")
+        print("🎯 Biometric enabled: \(isBiometricEnabled)")
+        print("🎯 Biometric type string: \(biometricTypeString)")
     }
     
     private func setupAppLifecycleObservers() {
@@ -48,6 +50,8 @@ class BiometricAuthenticationService: ObservableObject {
     // MARK: - Biometric Availability
     @discardableResult
     func checkBiometricAvailability() -> BiometricType {
+        print("🔍 Checking biometric availability...")
+        
         // Create a fresh context each time
         let freshContext = LAContext()
         var error: NSError?
@@ -67,23 +71,27 @@ class BiometricAuthenticationService: ObservableObject {
             default:
                 biometricType = .none
                 print("❌ No biometric type detected despite canEvaluatePolicy returning true")
+                print("❌ Biometry type: \(freshContext.biometryType)")
             }
         } else {
             biometricType = .none
             if let error = error {
                 print("❌ Biometric authentication not available: \(error.localizedDescription)")
+                print("❌ Error code: \(error.code)")
+                
                 if error.code == LAError.Code.biometryNotEnrolled.rawValue {
-                    // User hasn't set up Face ID/Touch ID
                     print("❌ Biometrics not enrolled on this device")
                 } else if error.code == LAError.Code.biometryNotAvailable.rawValue {
-                    // Device doesn't support biometrics
                     print("❌ Biometrics not available on this device")
+                } else if error.code == LAError.Code.biometryLockout.rawValue {
+                    print("❌ Biometrics locked out")
                 }
             } else {
                 print("❌ Unknown biometric error")
             }
         }
         
+        print("🎯 Final biometric type: \(biometricType)")
         return biometricType
     }
     
@@ -220,10 +228,12 @@ class BiometricAuthenticationService: ObservableObject {
     // MARK: - Biometric Settings
     private func loadBiometricSettings() {
         isBiometricEnabled = UserDefaults.standard.bool(forKey: "biometric_enabled")
+        print("🔍 Loaded biometric settings: enabled = \(isBiometricEnabled)")
     }
     
     func saveBiometricSettings() {
         UserDefaults.standard.set(isBiometricEnabled, forKey: "biometric_enabled")
+        print("💾 Saved biometric settings: enabled = \(isBiometricEnabled)")
     }
     
     // MARK: - Biometric Authentication
@@ -272,6 +282,10 @@ class BiometricAuthenticationService: ObservableObject {
     }
     
     func enableBiometricAuthentication(email: String, password: String) async -> Bool {
+        print("🔧 Attempting to enable biometric authentication for user...")
+        print("🔍 Email: \(email)")
+        print("🔍 Biometric type: \(biometricType)")
+        
         // Create a fresh context each time
         let freshContext = LAContext()
         let reason = "Enable \(biometricTypeString) to quickly and securely access your account"
@@ -280,25 +294,33 @@ class BiometricAuthenticationService: ObservableObject {
             // Verify that biometric authentication is available
             var authError: NSError?
             if !freshContext.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &authError) {
+                print("❌ Cannot evaluate biometric policy for enabling: \(authError?.localizedDescription ?? "Unknown error")")
                 DispatchQueue.main.async {
                     self.errorMessage = "Biometric authentication not available: \(authError?.localizedDescription ?? "Unknown error")"
                 }
                 return false
             }
             
+            print("✅ Biometric policy can be evaluated, requesting user authentication...")
             let success = try await freshContext.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason)
             
+            print("🎉 Biometric enable authentication result: \(success)")
+            
             if success {
+                print("✅ User authenticated, enabling biometric login...")
                 DispatchQueue.main.async {
                     self.isBiometricEnabled = true
                     self.saveBiometricSettings()
                 }
                 
                 // Save credentials to keychain
-                return saveCredentialsToKeychain(email: email, password: password)
+                let saved = saveCredentialsToKeychain(email: email, password: password)
+                print("💾 Credentials saved to keychain: \(saved)")
+                return saved
             }
             return false
         } catch {
+            print("❌ Error enabling biometric authentication: \(error)")
             DispatchQueue.main.async {
                 self.errorMessage = "Failed to enable \(self.biometricTypeString): \(error.localizedDescription)"
             }
@@ -307,7 +329,12 @@ class BiometricAuthenticationService: ObservableObject {
     }
     
     func authenticateWithBiometrics() async -> (email: String, password: String)? {
+        print("🔐 BiometricAuthenticationService: authenticateWithBiometrics called")
+        print("🔍 isBiometricEnabled: \(isBiometricEnabled)")
+        print("🔍 biometricType: \(biometricType)")
+        
         guard isBiometricEnabled else {
+            print("❌ Biometric authentication is not enabled")
             DispatchQueue.main.async {
                 self.errorMessage = "\(self.biometricTypeString) is not enabled"
             }
@@ -323,10 +350,13 @@ class BiometricAuthenticationService: ObservableObject {
         let freshContext = LAContext()
         let reason = "Use \(biometricTypeString) to sign in to your account"
         
+        print("🎯 Using reason: \(reason)")
+        
         do {
             // Verify that biometric authentication is available
             var authError: NSError?
             if !freshContext.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &authError) {
+                print("❌ Cannot evaluate biometric policy: \(authError?.localizedDescription ?? "Unknown error")")
                 DispatchQueue.main.async {
                     self.isLoading = false
                     self.errorMessage = "Biometric authentication not available: \(authError?.localizedDescription ?? "Unknown error")"
@@ -334,18 +364,24 @@ class BiometricAuthenticationService: ObservableObject {
                 return nil
             }
             
+            print("✅ Biometric policy can be evaluated, attempting authentication...")
             let success = try await freshContext.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason)
+            
+            print("🎉 Biometric authentication result: \(success)")
             
             DispatchQueue.main.async {
                 self.isLoading = false
             }
             
             if success {
+                print("🔑 Loading credentials from keychain...")
                 let credentials = loadCredentialsFromKeychain()
                 
                 if let email = credentials.email, let password = credentials.password {
+                    print("✅ Successfully retrieved credentials for email: \(email)")
                     return (email, password)
                 } else {
+                    print("❌ Failed to retrieve stored credentials from keychain")
                     DispatchQueue.main.async {
                         self.errorMessage = "Failed to retrieve stored credentials"
                         self.isBiometricEnabled = false
@@ -356,6 +392,7 @@ class BiometricAuthenticationService: ObservableObject {
             }
             return nil
         } catch {
+            print("❌ Biometric authentication error: \(error)")
             DispatchQueue.main.async {
                 self.isLoading = false
                 self.errorMessage = self.getBiometricError(error)

@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct HomeView: View {
-    let userName = "David Miller"
+    let userName = "Kavishka"
     @State private var showNotifications = false
     @State private var showProfile = false
     @State private var currentDate = Date()

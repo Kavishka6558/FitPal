@@ -10,7 +10,7 @@ class HealthNewsService: ObservableObject {
     
     // Using NewsAPI.org - you can get a free API key at https://newsapi.org/
     private let baseURL = "https://newsapi.org/v2"
-    private let apiKey = "YOUR_NEWS_API_KEY" // Replace with your actual API key
+    private let apiKey = "93714adf12c142b2b1b5c2a6d37f7988" // Replace with your actual API key
     
     // Alternative: Use Guardian API (also free) - https://open-platform.theguardian.com/
     private let guardianBaseURL = "https://content.guardianapis.com"

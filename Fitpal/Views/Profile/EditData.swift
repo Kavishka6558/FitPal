@@ -320,6 +320,9 @@ struct EditData: View {
                     hdlCholesterol = String(profile.hdlCholesterol)
                     ldlCholesterol = String(profile.ldlCholesterol)
                     
+                    // Save firstName to UserDefaults for quick access
+                    UserDefaults.standard.set(profile.firstName, forKey: "user_firstName")
+                    
                 case .failure(let error):
                     // If profile doesn't exist, load default values from current user
                     if let currentUser = Auth.auth().currentUser {
@@ -384,6 +387,8 @@ struct EditData: View {
                 
                 switch result {
                 case .success(let message):
+                    // Save firstName to UserDefaults for quick access
+                    UserDefaults.standard.set(firstName.trimmingCharacters(in: .whitespacesAndNewlines), forKey: "user_firstName")
                     successMessage = message
                     showSaveAlert = true
                     

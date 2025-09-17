@@ -93,12 +93,12 @@ class BloodSugarService: ObservableObject {
                 readings = try decoder.decode([BloodSugarReading].self, from: data)
                 readings.sort { $0.date > $1.date }
             } catch {
-                // If loading fails, use sample data
+               
                 readings = BloodSugarReading.sampleData
                 errorMessage = "Failed to load saved data. Using sample data."
             }
         } else {
-            // First time user - load sample data
+            
             readings = BloodSugarReading.sampleData
         }
     }

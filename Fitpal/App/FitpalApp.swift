@@ -11,6 +11,7 @@ import FirebaseAuth
 
 @main
 struct FitpalApp: App {
+    @StateObject private var authService = AuthenticationService()
     
     init() {
         FirebaseApp.configure()
@@ -18,17 +19,15 @@ struct FitpalApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .onAppear {
-                    Task {
-                        let granted = await NotificationService.shared.requestPermission()
-                        if granted {
-                            print("✅ App startup: Notification permissions granted")
-                        } else {
-                            print("❌ App startup: Notification permissions denied")
-                        }
-                    }
+            Group {
+                if authService.isAuthenticated {
+                    MainTabView()
+                        .environmentObject(authService)
+                } else {
+                    AuthenticationFlowView()
+                        .environmentObject(authService)
                 }
+            }
         }
     }
 }

@@ -1,34 +1,31 @@
 import SwiftUI
 
 struct WelcomeView: View {
+    @Binding var authState: AuthState
     @EnvironmentObject private var authService: AuthenticationService
-    @State private var showLoginView = false
     @State private var animateContent = false
     @State private var animateFloatingElements = false
     @State private var showParticles = false
     
     var body: some View {
-        NavigationStack {
-            GeometryReader { geometry in
-                ZStack {
-                    // Modern Gradient Background
-                    MeshGradient(
-                        width: 3,
-                        height: 3,
-                        points: [
-                            [0.0, 0.0], [0.5, 0.0], [1.0, 0.0],
-                            [0.0, 0.5], [0.5, 0.5], [1.0, 0.5],
-                            [0.0, 1.0], [0.5, 1.0], [1.0, 1.0]
-                        ],
-                        colors: [
-                            .blue.opacity(0.8), .purple.opacity(0.6), .cyan.opacity(0.7),
-                            .indigo.opacity(0.7), .blue.opacity(0.9), .purple.opacity(0.8),
-                            .blue.opacity(0.9), .indigo.opacity(0.8), .purple.opacity(0.7)
-                        ]
-                    )
-                    .ignoresSafeArea()
-                    
-                    // Animated Background Elements
+        GeometryReader { geometry in
+            ZStack {
+                // Modern Gradient Background
+                MeshGradient(
+                    width: 3,
+                    height: 3,
+                    points: [
+                        [0.0, 0.0], [0.5, 0.0], [1.0, 0.0],
+                        [0.0, 0.5], [0.5, 0.5], [1.0, 0.5],
+                        [0.0, 1.0], [0.5, 1.0], [1.0, 1.0]
+                    ],
+                    colors: [
+                        .blue.opacity(0.8), .purple.opacity(0.6), .cyan.opacity(0.7),
+                        .indigo.opacity(0.7), .blue.opacity(0.9), .purple.opacity(0.8),
+                        .blue.opacity(0.9), .indigo.opacity(0.8), .purple.opacity(0.7)
+                    ]
+                )
+                .ignoresSafeArea()                    // Animated Background Elements
                     ForEach(0..<6) { index in
                         FloatingShape(
                             size: CGFloat.random(in: 60...120),
@@ -137,7 +134,7 @@ struct WelcomeView: View {
                             VStack(spacing: 16) {
                                 // Primary CTA Button
                                 Button(action: { 
-                                    showLoginView = true 
+                                    authState = .login
                                 }) {
                                     HStack(spacing: 12) {
                                         Text("Get Started")
@@ -199,13 +196,8 @@ struct WelcomeView: View {
                         
                         Spacer()
                             .frame(height: 60)
-                    }
                 }
             }
-            .navigationDestination(isPresented: $showLoginView) {
-                AuthenticationFlowView()
-            }
-            .navigationBarHidden(true)
             .onAppear {
                 withAnimation(.easeOut(duration: 1.0)) {
                     animateContent = true
@@ -304,11 +296,13 @@ struct FeatureHighlight: View {
 // MARK: - Previews
 
 #Preview("Light Mode") {
-    WelcomeView()
+    WelcomeView(authState: .constant(.welcome))
         .preferredColorScheme(.light)
+        .environmentObject(AuthenticationService())
 }
 
 #Preview("Dark Mode") {
-    WelcomeView()
+    WelcomeView(authState: .constant(.welcome))
         .preferredColorScheme(.dark)
+        .environmentObject(AuthenticationService())
 }

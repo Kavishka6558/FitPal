@@ -3,6 +3,12 @@ import Foundation
 import LocalAuthentication
 import FirebaseAuth
 
+// Custom biometric errors
+enum BiometricError: Error {
+    case notAvailable
+    case authenticationFailed
+}
+
 // Modern Login View with glass-morphism design
 struct LoginView: View {
     @Binding var authState: AuthState
@@ -14,15 +20,37 @@ struct LoginView: View {
     @State private var isEmailFocused = false
     @State private var isPasswordFocused = false
     
+    // Face ID specific states
+    @State private var isFaceIDLoading = false
+    @State private var showAlert = false
+    @State private var alertTitle = ""
+    @State private var alertMessage = ""
+    
     // Computed properties for complex conditions
     private var isBiometricButtonDisabled: Bool {
-        authService.biometricService.biometricType == .none || 
-        authService.biometricService.isLoading || 
-        authService.isLoading
+        #if targetEnvironment(simulator)
+        // In simulator, always enable the Face ID button for testing
+        let disabled = isFaceIDLoading || authService.isLoading
+        print("🔍 Simulator - Button disabled check: \(disabled)")
+        return disabled
+        #else
+        let biometryType = biometricType()
+        let disabled = biometryType == .none || 
+                      isFaceIDLoading || 
+                      authService.isLoading
+        
+        print("🔍 Device - Button disabled check:")
+        print("  - biometryType: \(biometryType)")
+        print("  - isFaceIDLoading: \(isFaceIDLoading)")
+        print("  - authService.isLoading: \(authService.isLoading)")
+        print("  - Button disabled: \(disabled)")
+        
+        return disabled
+        #endif
     }
     
     private var isLoadingState: Bool {
-        authService.biometricService.isLoading || authService.isLoading
+        isFaceIDLoading || authService.isLoading
     }
     
     private var isSignInButtonDisabled: Bool {
@@ -30,22 +58,34 @@ struct LoginView: View {
     }
     
     private var biometricText: String {
-        authService.biometricService.isLoading ? 
+        isFaceIDLoading ? 
             "Scanning..." : 
-            "Scan \(authService.biometricService.biometricTypeString)"
+            "Scan \(biometricTypeString())"
     }
     
     private var biometricSignInText: String {
-        authService.biometricService.isLoading ? 
+        isFaceIDLoading ? 
             "Authenticating..." : 
-            "Sign in with \(authService.biometricService.biometricTypeString)"
+            "Sign in with \(biometricTypeString())"
+    }
+    
+    // Helper function for biometric type string
+    private func biometricTypeString() -> String {
+        switch biometricType() {
+        case .faceID:
+            return "Face ID"
+        case .touchID:
+            return "Touch ID"
+        default:
+            return "Biometrics"
+        }
     }
     
     @ViewBuilder
     private var biometricIcon: some View {
-        if authService.biometricService.biometricType == .faceID {
+        if biometricType() == .faceID {
             Image(systemName: "faceid")
-        } else if authService.biometricService.biometricType == .touchID {
+        } else if biometricType() == .touchID {
             Image(systemName: "touchid")
         } else {
             Image(systemName: "person.badge.key")
@@ -54,7 +94,7 @@ struct LoginView: View {
     
     @ViewBuilder
     private var biometricScanButtonIcon: some View {
-        if authService.biometricService.isLoading {
+        if isFaceIDLoading {
             ProgressView()
                 .progressViewStyle(CircularProgressViewStyle(tint: .white))
                 .scaleEffect(0.8)
@@ -63,7 +103,7 @@ struct LoginView: View {
                 Circle()
                     .fill(Color.white)
                     .frame(width: 48, height: 48)
-                Image(systemName: authService.biometricService.biometricIcon)
+                Image(systemName: biometricIconString())
                     .font(.system(size: 24, weight: .medium))
                     .foregroundColor(.green)
             }
@@ -72,13 +112,25 @@ struct LoginView: View {
     
     @ViewBuilder
     private var secondaryBiometricIcon: some View {
-        if authService.biometricService.isLoading {
+        if isFaceIDLoading {
             ProgressView()
                 .progressViewStyle(CircularProgressViewStyle(tint: .blue))
                 .scaleEffect(0.8)
         } else {
-            Image(systemName: authService.biometricService.biometricIcon)
+            Image(systemName: biometricIconString())
                 .font(.system(size: 20))
+        }
+    }
+    
+    // Helper function for biometric icon string
+    private func biometricIconString() -> String {
+        switch biometricType() {
+        case .faceID:
+            return "faceid"
+        case .touchID:
+            return "touchid"
+        default:
+            return "person.badge.key"
         }
     }
     
@@ -199,12 +251,21 @@ struct LoginView: View {
                             .padding(.horizontal, 24)
                             
                             // Biometric authentication section
-                            if authService.biometricService.biometricType != .none {
+                            if biometricType() != .none {
                                 BiometricLoginSection(
-                                    authService: authService,
+                                    biometricType: biometricType(),
+                                    isFaceIDLoading: isFaceIDLoading,
+                                    authServiceLoading: authService.isLoading,
+                                    biometricAvailable: biometricAuthenticationAvailable(),
                                     email: email,
                                     password: password,
-                                    onBiometricLogin: handleBiometricLogin
+                                    onBiometricLogin: handleBiometricAuth,
+                                    onEnableBiometric: {
+                                        // This would integrate with your existing auth service
+                                        Task {
+                                            await authService.enableBiometricLogin(email: email, password: password)
+                                        }
+                                    }
                                 )
                                 .padding(.horizontal, 24)
                                 .padding(.top, 24)
@@ -225,6 +286,11 @@ struct LoginView: View {
                     SignupView(authState: $authState)
                 }
                 .navigationBarHidden(true)
+                .alert(alertTitle, isPresented: $showAlert) {
+                    Button("OK") { }
+                } message: {
+                    Text(alertMessage)
+                }
                 .alert("Reset Password", isPresented: $showForgotPassword) {
                     TextField("Enter your email", text: $email)
                     Button("Send Reset Email") {
@@ -237,7 +303,7 @@ struct LoginView: View {
                     Text("Enter your email address to receive a password reset link.")
                 }
                 .onAppear {
-                    authService.biometricService.checkBiometricAvailability()
+                    // Check biometric availability when view appears
                 }
             }
         }
@@ -249,10 +315,204 @@ struct LoginView: View {
         }
     }
     
-    private func handleBiometricLogin() {
-        Task {
-            await authService.loginWithBiometrics()
+    private func onLoginSuccess() {
+        // Navigate to home or main app view
+        authState = .authenticated
+    }
+    
+    private func handleBiometricAuth() {
+        #if targetEnvironment(simulator)
+        // In simulator, always try to proceed with Face ID authentication
+        print("🔧 Simulator detected - forcing Face ID authentication attempt")
+        
+        isFaceIDLoading = true
+        
+        let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+        impactFeedback.impactOccurred()
+        
+        authenticateWithBiometrics { result in
+            DispatchQueue.main.async {
+                self.isFaceIDLoading = false
+                
+                switch result {
+                case .success(_):
+                    let successFeedback = UINotificationFeedbackGenerator()
+                    successFeedback.notificationOccurred(.success)
+                    
+                    self.checkUserOnboardingStatus()
+                case .failure(let error):
+                    let errorFeedback = UINotificationFeedbackGenerator()
+                    errorFeedback.notificationOccurred(.error)
+                    
+                    // In simulator, provide helpful guidance for Face ID setup
+                    if let laError = error as? LAError, laError.code == .biometryNotEnrolled {
+                        self.showAlert(
+                            title: "Face ID Setup Required", 
+                            message: "To test Face ID, go to Device → Face ID → Enrolled in the Simulator menu, or open Settings → Face ID & Passcode in the simulator."
+                        )
+                    } else {
+                        let errorMessage = self.handleBiometricError(error)
+                        self.showAlert(title: "Face ID Authentication Failed", message: errorMessage)
+                    }
+                }
+            }
         }
+        #else
+        // On real device, check availability first
+        guard biometricAuthenticationAvailable() else {
+            showAlert(title: "Face ID Not Available", message: "Biometric authentication is not available on this device.")
+            return
+        }
+        
+        isFaceIDLoading = true
+        
+        let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+        impactFeedback.impactOccurred()
+        
+        authenticateWithBiometrics { result in
+            DispatchQueue.main.async {
+                self.isFaceIDLoading = false
+                
+                switch result {
+                case .success(_):
+                    let successFeedback = UINotificationFeedbackGenerator()
+                    successFeedback.notificationOccurred(.success)
+                    
+                    self.checkUserOnboardingStatus()
+                case .failure(let error):
+                    let errorFeedback = UINotificationFeedbackGenerator()
+                    errorFeedback.notificationOccurred(.error)
+                    
+                    let errorMessage = self.handleBiometricError(error)
+                    self.showAlert(title: "Face ID Authentication Failed", message: errorMessage)
+                }
+            }
+        }
+        #endif
+    }
+    
+    private func checkUserOnboardingStatus() {
+        if let _ = UserDefaults.standard.string(forKey: "userEmail") {
+            UserDefaults.standard.set(true, forKey: "isLoggedIn")
+            self.onLoginSuccess()
+        } else {
+            self.showAlert(title: "Setup Required", message: "Please log in with email and password first to enable Face ID authentication")
+        }
+    }
+    
+    private func authenticateWithBiometrics(completion: @escaping (Result<Bool, Error>) -> Void) {
+        let context = LAContext()
+        var error: NSError?
+        
+        context.localizedFallbackTitle = "Use Passcode"
+        context.localizedCancelTitle = "Cancel"
+        
+        let canEvaluate = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
+        
+        guard canEvaluate else {
+            if let error = error {
+                completion(.failure(error))
+            } else {
+                completion(.failure(BiometricError.notAvailable))
+            }
+            return
+        }
+        
+        let reason = "Use Face ID to log into your account"
+        
+        context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, authenticationError in
+            if success {
+                completion(.success(true))
+            } else {
+                if let error = authenticationError {
+                    completion(.failure(error))
+                } else {
+                    completion(.failure(BiometricError.authenticationFailed))
+                }
+            }
+        }
+    }
+    
+    private func handleBiometricError(_ error: Error) -> String {
+        if let laError = error as? LAError {
+            switch laError.code {
+            case .userCancel:
+                return "Authentication was cancelled"
+            case .userFallback:
+                return "Authentication failed. Please try again"
+            case .biometryNotAvailable:
+                return "Face ID is not available on this device"
+            case .biometryNotEnrolled:
+                return "No Face ID is set up on this device. Please set up Face ID in Settings"
+            case .biometryLockout:
+                return "Face ID is locked. Please try again later or use your passcode"
+            case .authenticationFailed:
+                return "Face ID authentication failed. Please try again"
+            case .invalidContext:
+                return "Authentication context is invalid"
+            case .notInteractive:
+                return "Authentication failed because user interaction is not allowed"
+            default:
+                return "Authentication failed: \(laError.localizedDescription)"
+            }
+        } else {
+            return "Authentication failed. Please try again"
+        }
+    }
+    
+    private func biometricAuthenticationAvailable() -> Bool {
+        let context = LAContext()
+        var error: NSError?
+        let canEvaluate = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
+        
+        print("🔍 Biometric availability check:")
+        print("  - canEvaluatePolicy: \(canEvaluate)")
+        print("  - error: \(error?.localizedDescription ?? "none")")
+        print("  - error code: \(error?.code ?? 0)")
+        
+        // Check if it's just not enrolled (which is fine, we can still detect the capability)
+        if let laError = error as? LAError {
+            switch laError.code {
+            case .biometryNotEnrolled:
+                print("  - Biometry not enrolled but device supports it")
+                return biometricType() != .none
+            case .biometryNotAvailable:
+                print("  - Biometry not available on device")
+                return false
+            default:
+                break
+            }
+        }
+        
+        return canEvaluate || biometricType() != .none
+    }
+    
+    private func biometricType() -> LABiometryType {
+        #if targetEnvironment(simulator)
+        print("🔍 Simulator: Forcing Face ID detection")
+        return .faceID
+        #else
+        let context = LAContext()
+        var error: NSError?
+        
+        // First check if we can evaluate the policy
+        let canEvaluate = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
+        
+        print("🔍 Biometric detection debug:")
+        print("  - canEvaluatePolicy: \(canEvaluate)")
+        print("  - error: \(error?.localizedDescription ?? "none")")
+        print("  - context.biometryType: \(context.biometryType.rawValue)")
+        
+        let detectedType = context.biometryType
+        print("🎯 Final biometric type: \(detectedType)")
+        return detectedType
+        #endif
+    }
+    
+    private func showAlert(title: String, message: String) {
+        alertTitle = title
+        alertMessage = message
+        showAlert = true
     }
 }
 
@@ -421,17 +681,39 @@ struct ModernTextField: View {
 }
 
 struct BiometricLoginSection: View {
-    let authService: AuthenticationService
+    let biometricType: LABiometryType
+    let isFaceIDLoading: Bool
+    let authServiceLoading: Bool
+    let biometricAvailable: Bool
     let email: String
     let password: String
     let onBiometricLogin: () -> Void
+    let onEnableBiometric: () -> Void
     
     private var isLoading: Bool {
-        authService.biometricService.isLoading || authService.isLoading
+        isFaceIDLoading || authServiceLoading
     }
     
-    private var isBiometricAvailable: Bool {
-        authService.biometricService.biometricType != .none && !isLoading
+    private var biometricTypeString: String {
+        switch biometricType {
+        case .faceID:
+            return "Face ID"
+        case .touchID:
+            return "Touch ID"
+        default:
+            return "Biometric"
+        }
+    }
+    
+    private var biometricIcon: String {
+        switch biometricType {
+        case .faceID:
+            return "faceid"
+        case .touchID:
+            return "touchid"
+        default:
+            return "person.badge.key"
+        }
     }
     
     var body: some View {
@@ -454,39 +736,191 @@ struct BiometricLoginSection: View {
             
             // Biometric authentication card
             VStack(spacing: 16) {
-                if authService.biometricService.isBiometricEnabled {
+                if biometricAvailable {
                     // Quick biometric login button
                     ModernActionButton(
-                        title: isLoading ? "Authenticating..." : "Sign in with \(authService.biometricService.biometricTypeString)",
-                        icon: authService.biometricService.biometricIcon,
+                        title: isLoading ? "Authenticating..." : "Sign in with \(biometricTypeString)",
+                        icon: biometricIcon,
                         isLoading: isLoading,
-                        isEnabled: isBiometricAvailable,
+                        isEnabled: biometricAvailable && !isLoading,
                         style: .secondary,
                         action: onBiometricLogin
                     )
                 } else {
                     // Enable biometric login prompt
-                    if !email.isEmpty && !password.isEmpty {
-                        Button(action: {
-                            Task {
-                                await authService.enableBiometricLogin(email: email, password: password)
-                            }
-                        }) {
+                    if !email.isEmpty && !password.isEmpty && biometricType != .none {
+                        Button(action: onEnableBiometric) {
                             HStack(spacing: 12) {
-                                Image(systemName: authService.biometricService.biometricIcon)
+                                Image(systemName: biometricIcon)
                                     .font(.system(size: 16, weight: .medium))
                                 
-                                Text("Enable \(authService.biometricService.biometricTypeString) Login")
+                                Text("Enable \(biometricTypeString) Login")
                                     .font(.system(size: 14, weight: .medium))
                             }
                             .foregroundColor(.blue)
                             .padding(.vertical, 12)
                         }
-                        .disabled(authService.isLoading)
+                        .disabled(authServiceLoading)
+                    } else if biometricType == .none {
+                        // Show message if biometric authentication is not available
+                        HStack(spacing: 8) {
+                            Image(systemName: "exclamationmark.circle")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.secondary)
+                            
+                            Text("Biometric authentication not available on this device")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(.vertical, 8)
                     }
                 }
             }
         }
+    }
+}
+
+struct FaceIDLoginButton: View {
+    let isLoading: Bool
+    let isEnabled: Bool
+    let onFaceIDLogin: () -> Void
+    @EnvironmentObject private var authService: AuthenticationService
+    
+    // Local biometric detection
+    private var biometricType: LABiometryType {
+        let context = LAContext()
+        let _ = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil)
+        return context.biometryType
+    }
+    
+    private var biometricIcon: String {
+        switch biometricType {
+        case .faceID:
+            return "faceid"
+        case .touchID:
+            return "touchid"
+        default:
+            return "person.badge.key"
+        }
+    }
+    
+    private var biometricText: String {
+        if isLoading {
+            return "Authenticating..."
+        } else {
+            switch biometricType {
+            case .faceID:
+                return "Login with Face ID"
+            case .touchID:
+                return "Login with Touch ID"
+            default:
+                return "Login with Biometrics"
+            }
+        }
+    }
+    
+    private var subtitleText: String {
+        if isLoading {
+            return "Please authenticate"
+        } else if !isEnabled {
+            return "Set up biometric login first"
+        } else {
+            return "Quick and secure access"
+        }
+    }
+    
+    var body: some View {
+        Button(action: onFaceIDLogin) {
+            HStack(spacing: 16) {
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.blue.opacity(0.2), Color.purple.opacity(0.2)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 44, height: 44)
+                        .scaleEffect(isLoading ? 1.1 : 1.0)
+                        .animation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: isLoading)
+                    
+                    if isLoading {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            .scaleEffect(0.8)
+                    } else {
+                        Image(systemName: biometricIcon)
+                            .font(.system(size: 24, weight: .medium))
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [.blue, .purple],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                    }
+                }
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(biometricText)
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [.primary, .blue],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                    
+                    Text(subtitleText)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.secondary)
+                }
+                
+                Spacer()
+                
+                Image(systemName: "arrow.right.circle.fill")
+                    .font(.system(size: 20, weight: .medium))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [.blue, .purple],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .rotationEffect(.degrees(isLoading ? 360 : 0))
+                    .animation(.linear(duration: 2.0).repeatForever(autoreverses: false), value: isLoading)
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(.ultraThinMaterial)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(
+                                LinearGradient(
+                                    colors: [Color.blue.opacity(0.3), Color.purple.opacity(0.3)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 1.5
+                            )
+                    )
+                    .shadow(
+                        color: Color.blue.opacity(0.15),
+                        radius: 15,
+                        x: 0,
+                        y: 8
+                    )
+            )
+        }
+//        .disabled(!isEnabled)
+        .opacity(isEnabled ? 1.0 : 0.6)
+        .scaleEffect(isEnabled ? 1.0 : 0.95)
+        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: isEnabled)
+        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: isLoading)
     }
 }
 

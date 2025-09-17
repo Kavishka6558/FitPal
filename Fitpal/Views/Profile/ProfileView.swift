@@ -1,8 +1,8 @@
 import SwiftUI
-import FirebaseAuth
 
 struct ProfileView: View {
     @EnvironmentObject private var authService: AuthenticationService
+    @State private var userName: String = "FitPal User"
     @State private var showingLogoutAlert = false
     @State private var showingBiometricSettings = false
     @State private var isBiometricEnabled = false
@@ -55,7 +55,7 @@ struct ProfileView: View {
                         
                         // User Info with Modern Typography
                         VStack(spacing: 8) {
-                            Text(authService.currentUser?.displayName ?? "FitPal User")
+                            Text(userName)
                                 .font(.title)
                                 .fontWeight(.bold)
                                 .fontDesign(.rounded)
@@ -180,6 +180,7 @@ struct ProfileView: View {
             .navigationBarTitleDisplayMode(.large)
             .onAppear {
                 checkBiometricAvailability()
+                loadUserName()
             }
             .alert("Sign Out", isPresented: $showingLogoutAlert) {
                 Button("Cancel", role: .cancel) { }
@@ -190,7 +191,10 @@ struct ProfileView: View {
                 Text("Are you sure you want to sign out of your account?")
             }
         }
-        .sheet(isPresented: $showingEditData) {
+        .sheet(isPresented: $showingEditData, onDismiss: {
+            // Refresh the user name when returning from EditData
+            loadUserName()
+        }) {
             EditData()
         }
     }
@@ -198,6 +202,20 @@ struct ProfileView: View {
     private func checkBiometricAvailability() {
         biometricType = authService.biometricService.getBiometricType()
         isBiometricEnabled = authService.biometricService.isBiometricEnabled
+    }
+    
+    private func loadUserName() {
+        // Load firstName from UserDefaults
+        if let firstName = UserDefaults.standard.string(forKey: "user_firstName"), !firstName.isEmpty {
+            userName = firstName
+        } else {
+            // Fallback to extracting first name from Firebase displayName
+            if let displayName = authService.currentUser?.displayName, !displayName.isEmpty {
+                userName = displayName.components(separatedBy: " ").first ?? "Kavishka"
+            } else {
+                userName = "Kavishka"
+            }
+        }
     }
     
     private func enableBiometricAuthentication() {

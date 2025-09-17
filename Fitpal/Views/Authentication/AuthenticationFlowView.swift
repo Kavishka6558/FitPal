@@ -1,12 +1,15 @@
 import SwiftUI
+import Combine
 
 struct AuthenticationFlowView: View {
     @EnvironmentObject private var authService: AuthenticationService
-    @State private var authState: AuthState = .login
+    @State private var authState: AuthState = .welcome
     
     var body: some View {
         Group {
             switch authState {
+            case .welcome:
+                WelcomeView(authState: $authState)
             case .login:
                 LoginView(authState: $authState)
             case .signup:
@@ -20,6 +23,12 @@ struct AuthenticationFlowView: View {
             }
         }
         .environmentObject(authService)
+        .onReceive(authService.$shouldShowWelcome) { shouldShowWelcome in
+            if shouldShowWelcome {
+                authState = .welcome
+                authService.shouldShowWelcome = false  // Reset the flag
+            }
+        }
     }
 }
 

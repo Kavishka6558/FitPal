@@ -556,7 +556,25 @@ struct WorkoutExerciseView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarHidden(true)
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    dismiss()
+                }) {
+                    ZStack {
+                        Circle()
+                            .fill(.regularMaterial)
+                            .frame(width: 32, height: 32)
+                            .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
+                        
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.primary)
+                    }
+                }
+            }
+        }
         .sheet(isPresented: $showingVideoAnalysis) {
             WorkoutVideoAnalysisView(
                 analysisVM: analysisVM,

@@ -9,6 +9,7 @@ class AuthenticationService: ObservableObject {
     @Published var currentUser: User?
     @Published var requiresBiometricAuth = false
     @Published var justSignedUp = false  // Track if user just completed signup
+    @Published var shouldShowWelcome = false  // Track if should show welcome after logout
     
     // Biometric authentication
     @Published var biometricService = BiometricAuthenticationService()
@@ -17,6 +18,7 @@ class AuthenticationService: ObservableObject {
         // Check if user is already authenticated
         if let user = Auth.auth().currentUser {
             self.currentUser = user
+            
             // Check if biometric is enabled - if so, require biometric auth
             if biometricService.isBiometricEnabled {
                 self.requiresBiometricAuth = true
@@ -31,6 +33,7 @@ class AuthenticationService: ObservableObject {
             DispatchQueue.main.async {
                 if let user = user {
                     self?.currentUser = user
+                    
                     // If biometric is enabled, require biometric auth
                     if self?.biometricService.isBiometricEnabled == true {
                         self?.requiresBiometricAuth = true
@@ -53,13 +56,15 @@ class AuthenticationService: ObservableObject {
             self.isLoading = true
             self.errorMessage = nil
         }
-        
+
         do {
             let result = try await Auth.auth().signIn(withEmail: email, password: password)
+            
             DispatchQueue.main.async {
                 self.isLoading = false
                 self.isAuthenticated = true
                 self.currentUser = result.user
+                self.requiresBiometricAuth = false
             }
         } catch {
             DispatchQueue.main.async {
@@ -147,6 +152,9 @@ class AuthenticationService: ObservableObject {
                 self.isAuthenticated = false
                 self.currentUser = nil
                 self.errorMessage = nil
+                self.shouldShowWelcome = true  // Trigger navigation to welcome
+                self.requiresBiometricAuth = false
+                self.justSignedUp = false
             }
         } catch {
             DispatchQueue.main.async {

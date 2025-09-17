@@ -12,7 +12,7 @@ struct UserProfile: Codable {
     var ldlCholesterol: Double?
     var isCompleted: Bool = false
     
-    // Computed properties
+
     var heightInCm: Double? {
         guard let feet = heightFeet, let inches = heightInches else { return nil }
         return Double(feet * 12 + inches) * 2.54
@@ -93,7 +93,7 @@ class UserProfileManager: ObservableObject {
             saveLegacyProfile(profile)
         }
         
-        // Always save legacy format for backward compatibility
+        
         saveLegacyProfile(profile)
     }
     
@@ -145,7 +145,7 @@ class UserProfileManager: ObservableObject {
             print("🔍 No JSON profile data found, trying legacy format...")
         }
         
-        // Fallback to legacy support
+        
         loadLegacyProfile()
     }
     

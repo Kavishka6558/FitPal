@@ -5,6 +5,7 @@ struct WorkoutView: View {
     @Environment(\.dismiss) private var dismiss
     // Temporarily commenting out WorkoutSuggestionService until build issues are resolved
     // @StateObject private var workoutSuggestionService = WorkoutSuggestionService()
+    @StateObject private var workoutFirebaseService = WorkoutFirebaseService()
     @State private var selectedTab: WorkoutTab = .suggested
     @State private var selectedDate = Date()
     @State private var showCalendar = false
@@ -16,6 +17,8 @@ struct WorkoutView: View {
     @State private var showExerciseView = false
     @State private var showCheckingView = false
     @State private var selectedWorkoutCategory: WorkoutCategory?
+    @State private var myWorkouts: [WorkoutCategory] = []
+    @State private var isLoadingMyWorkouts = false
     
     enum WorkoutTab: String, CaseIterable {
         case suggested = "Suggested"
@@ -68,36 +71,93 @@ struct WorkoutView: View {
         )
     ]
     
-    let myWorkouts = [
-        WorkoutCategory(
-            title: "Pull Day",
-            icon: "figure.strengthtraining.functional",
-            iconColor: .purple,
-            difficulty: .advanced,
-            duration: 60,
-            calories: 420,
-            exercises: [
-                WorkoutExercise(name: "Deadlifts", sets: 4, reps: 6, weight: "225 lbs"),
-                WorkoutExercise(name: "Pull-ups", sets: 4, reps: 8, weight: "Bodyweight"),
-                WorkoutExercise(name: "Barbell Rows", sets: 3, reps: 10, weight: "155 lbs"),
-                WorkoutExercise(name: "Face Pulls", sets: 3, reps: 15, weight: "40 lbs")
-            ]
-        ),
-        WorkoutCategory(
-            title: "Cardio",
-            icon: "figure.run",
-            iconColor: .green,
-            difficulty: .intermediate,
-            duration: 25,
-            calories: 280,
-            exercises: [
-                WorkoutExercise(name: "Burpees", sets: 4, reps: 10, weight: "30 sec work"),
-                WorkoutExercise(name: "Mountain Climbers", sets: 4, reps: 20, weight: "30 sec work"),
-                WorkoutExercise(name: "Jump Squats", sets: 4, reps: 15, weight: "30 sec work"),
-                WorkoutExercise(name: "High Knees", sets: 4, reps: 20, weight: "30 sec work")
-            ]
+    // Static workouts will be replaced by dynamic data from Firebase
+    
+    // Function to convert WorkoutData to WorkoutCategory
+    private func convertToWorkoutCategory(from workoutData: WorkoutData) -> WorkoutCategory {
+        // Create a single exercise from the workout data
+        let exercise = WorkoutExercise(
+            name: workoutData.selectedWorkout,
+            sets: workoutData.numberOfSets,
+            reps: workoutData.numberOfReps,
+            weight: "Custom Weight"
         )
-    ]
+        
+        // Determine icon and color based on workout name
+        let (icon, iconColor) = getWorkoutIconAndColor(for: workoutData.workoutName)
+        
+        let category = WorkoutCategory(
+            title: workoutData.workoutName,
+            icon: icon,
+            iconColor: iconColor,
+            difficulty: .intermediate, // Default difficulty for custom workouts
+            duration: estimateDuration(sets: workoutData.numberOfSets, reps: workoutData.numberOfReps),
+            calories: estimateCalories(sets: workoutData.numberOfSets, reps: workoutData.numberOfReps),
+            exercises: [exercise]
+        )
+        
+        print("🔄 Converted workout: \(category.title) with \(category.exercises.count) exercise(s)")
+        return category
+    }
+    
+    // Helper function to determine icon and color based on workout name
+    private func getWorkoutIconAndColor(for workoutName: String) -> (String, Color) {
+        let lowercased = workoutName.lowercased()
+        
+        if lowercased.contains("pull") {
+            return ("figure.strengthtraining.functional", .purple)
+        } else if lowercased.contains("push") {
+            return ("figure.strengthtraining.traditional", .orange)
+        } else if lowercased.contains("chest") {
+            return ("figure.strengthtraining.traditional", .red)
+        } else if lowercased.contains("back") {
+            return ("figure.strengthtraining.functional", .blue)
+        } else if lowercased.contains("leg") {
+            return ("figure.walk", .green)
+        } else if lowercased.contains("cardio") {
+            return ("heart.fill", .pink)
+        } else {
+            return ("dumbbell.fill", .blue)
+        }
+    }
+    
+    // Helper function to estimate workout duration
+    private func estimateDuration(sets: Int, reps: Int) -> Int {
+        // Rough estimation: each set takes about 2-3 minutes including rest
+        return sets * 3
+    }
+    
+    // Helper function to estimate calories burned
+    private func estimateCalories(sets: Int, reps: Int) -> Int {
+        // Rough estimation: about 5-8 calories per set depending on intensity
+        return sets * 6
+    }
+    
+    // Function to load user workouts from Firebase
+    private func loadMyWorkouts() {
+        print("🔄 Starting to load My Workouts from Firebase...")
+        isLoadingMyWorkouts = true
+        
+        workoutFirebaseService.fetchUserWorkouts { result in
+            DispatchQueue.main.async {
+                self.isLoadingMyWorkouts = false
+                
+                switch result {
+                case .success(let workoutDataArray):
+                    print("📦 Received \(workoutDataArray.count) workout(s) from Firebase")
+                    self.myWorkouts = workoutDataArray.map { workoutData in
+                        print("  - Converting: \(workoutData.workoutName) - \(workoutData.selectedWorkout)")
+                        return self.convertToWorkoutCategory(from: workoutData)
+                    }
+                    print("✅ Successfully loaded \(self.myWorkouts.count) user workouts")
+                    
+                case .failure(let error):
+                    print("❌ Error loading user workouts: \(error.localizedDescription)")
+                    self.myWorkouts = [] // Clear workouts on error
+                }
+            }
+        }
+    }
     
     private var weekDates: [Date] {
         let calendar = Calendar.current
@@ -113,8 +173,15 @@ struct WorkoutView: View {
     private func refreshWorkouts() {
         guard !isRefreshing else { return }
         
+        print("🔄 Manual refresh triggered for \(selectedTab.rawValue)")
+        
         withAnimation(.easeInOut(duration: 0.3)) {
             isRefreshing = true
+        }
+        
+        // Refresh My Workouts from Firebase if on My Workouts tab
+        if selectedTab == .myWorkout {
+            loadMyWorkouts()
         }
         
         // Simulate workout refresh
@@ -257,6 +324,16 @@ struct WorkoutView: View {
                                 .padding(.horizontal, 20)
                                 .padding(.top, 18)
                                 
+                            } else if selectedTab == .myWorkout && isLoadingMyWorkouts {
+                                // Loading state for My Workouts
+                                VStack(spacing: 16) {
+                                    ForEach(0..<3, id: \.self) { _ in
+                                        WorkoutLoadingCard()
+                                    }
+                                }
+                                .padding(.horizontal, 20)
+                                .padding(.top, 18)
+                                
                             } else if selectedTab == .suggested && workouts.isEmpty {
                                 // Empty state for suggested workouts
                                 VStack(spacing: 12) {
@@ -296,9 +373,47 @@ struct WorkoutView: View {
                                 .padding(.horizontal, 20)
                                 .padding(.top, 40)
                                 
+                            } else if selectedTab == .myWorkout && myWorkouts.isEmpty && !isLoadingMyWorkouts {
+                                // Empty state for My Workouts
+                                VStack(spacing: 12) {
+                                    Image(systemName: "dumbbell")
+                                        .font(.system(size: 48, weight: .light))
+                                        .foregroundColor(.secondary.opacity(0.5))
+                                    
+                                    Text("No custom workouts yet")
+                                        .font(.system(size: 18, weight: .semibold))
+                                        .foregroundColor(.primary)
+                                    
+                                    Text("Create your first workout using the + button below")
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundColor(.secondary)
+                                        .multilineTextAlignment(.center)
+                                        .padding(.horizontal, 30)
+                                    
+                                    Button("Create Workout") {
+                                        showRoutinesView = true
+                                    }
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 20)
+                                    .padding(.vertical, 10)
+                                    .background(
+                                        LinearGradient(
+                                            colors: [.blue, .purple],
+                                            startPoint: .leading,
+                                            endPoint: .trailing
+                                        ),
+                                        in: RoundedRectangle(cornerRadius: 12)
+                                    )
+                                    .shadow(color: .blue.opacity(0.3), radius: 8, x: 0, y: 4)
+                                }
+                                .padding(.horizontal, 20)
+                                .padding(.top, 40)
+                                
                             } else {
                                 LazyVStack(spacing: 14) {
-                                    ForEach(workouts, id: \.title) { category in
+                                    let displayWorkouts = selectedTab == .myWorkout ? myWorkouts : workouts
+                                    ForEach(displayWorkouts, id: \.title) { category in
                                         ModernWorkoutCard(
                                             category: category,
                                             onExerciseSelected: { exercise, workoutTitle in
@@ -389,6 +504,23 @@ struct WorkoutView: View {
                 .onAppear {
                     // Initialize workout data on view appear
                     print("WorkoutView appeared - Ready to display workouts")
+                    // Load user workouts from Firebase
+                    loadMyWorkouts()
+                }
+                .onChange(of: selectedTab) { newTab in
+                    print("📱 Tab changed to: \(newTab.rawValue)")
+                    // Load workouts when switching to My Workouts tab
+                    if newTab == .myWorkout {
+                        print("🎯 Loading My Workouts for tab switch...")
+                        loadMyWorkouts()
+                    }
+                }
+                .onChange(of: showRoutinesView) { isShowing in
+                    // Refresh My Workouts when returning from RoutinesView
+                    if !isShowing && selectedTab == .myWorkout {
+                        print("🔄 Returned from RoutinesView, refreshing My Workouts...")
+                        loadMyWorkouts()
+                    }
                 }
                 .navigationDestination(isPresented: $showRoutinesView) {
                     RoutinesView()
