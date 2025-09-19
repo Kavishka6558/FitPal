@@ -6,12 +6,23 @@
 //
 
 import Testing
+import Foundation
 @testable import Fitpal
 
+// MARK: - Main Test Suite
 struct FitpalTests {
-
-    @Test func example() async throws {
-        // Write your test here and use APIs like `#expect(...)` to check expected conditions.
+    
+    @Test func testAppInitialization() async throws {
+        // Test that the app can be initialized without crashing
+        let authService = AuthenticationService()
+        #expect(authService.isAuthenticated == false)
+        #expect(authService.isLoading == false)
+        #expect(authService.currentUser == nil)
     }
-
+    
+    @Test func testBiometricServiceInitialization() async throws {
+        let biometricService = BiometricAuthenticationService()
+        #expect(biometricService.isLoading == false)
+        // Note: biometricType and availability depend on device capabilities
+    }
 }

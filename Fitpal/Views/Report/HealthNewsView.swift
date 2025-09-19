@@ -244,26 +244,6 @@ struct HealthNewsView: View {
             }
             .navigationTitle("Health News")
             .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        newsService.refreshNews(category: selectedCategory)
-                    } label: {
-                        Image(systemName: newsService.isLoading ? "arrow.clockwise" : "arrow.clockwise")
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundStyle(
-                                LinearGradient(
-                                    colors: [.blue, .purple],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .rotationEffect(.degrees(newsService.isLoading ? 360 : 0))
-                            .animation(.linear(duration: 1).repeatForever(autoreverses: false), value: newsService.isLoading)
-                    }
-                    .disabled(newsService.isLoading)
-                }
-            }
             .sheet(isPresented: $showingArticleDetail) {
                 if let article = selectedArticle {
                     NewsDetailView(article: article)

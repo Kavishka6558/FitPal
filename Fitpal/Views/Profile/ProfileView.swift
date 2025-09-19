@@ -1,4 +1,5 @@
 import SwiftUI
+import UserNotifications
 
 struct ProfileView: View {
     @EnvironmentObject private var authService: AuthenticationService
@@ -8,6 +9,7 @@ struct ProfileView: View {
     @State private var isBiometricEnabled = false
     @State private var biometricType: BiometricType = .none
     @State private var showingEditData = false
+    @State private var isNotificationsEnabled = true
     
     var body: some View {
         NavigationView {
@@ -82,12 +84,12 @@ struct ProfileView: View {
                                 action: { showingEditData = true }
                             )
                             
-                            ModernProfileRow(
+                            ModernProfileRowWithToggle(
                                 icon: "bell.circle.fill",
                                 iconColor: .orange,
                                 title: "Notifications",
-                                subtitle: "Customize your alerts and reminders",
-                                action: { /* Handle notifications */ }
+                                subtitle: "Receive workout reminders and updates",
+                                isEnabled: $isNotificationsEnabled
                             )
                         }
                         
@@ -181,6 +183,10 @@ struct ProfileView: View {
             .onAppear {
                 checkBiometricAvailability()
                 loadUserName()
+                loadNotificationSettings()
+            }
+            .onChange(of: isNotificationsEnabled) { newValue in
+                saveNotificationSettings(newValue)
             }
             .alert("Sign Out", isPresented: $showingLogoutAlert) {
                 Button("Cancel", role: .cancel) { }
@@ -211,9 +217,9 @@ struct ProfileView: View {
         } else {
             // Fallback to extracting first name from Firebase displayName
             if let displayName = authService.currentUser?.displayName, !displayName.isEmpty {
-                userName = displayName.components(separatedBy: " ").first ?? "Kavishka"
+                userName = displayName.components(separatedBy: " ").first ?? "FitPal User"
             } else {
-                userName = "Kavishka"
+                userName = "FitPal User"
             }
         }
     }
@@ -230,6 +236,34 @@ struct ProfileView: View {
     private func disableBiometricAuthentication() {
         authService.biometricService.disableBiometricAuthentication()
         isBiometricEnabled = false
+    }
+    
+    private func loadNotificationSettings() {
+        isNotificationsEnabled = UserDefaults.standard.bool(forKey: "NotificationsEnabled")
+        // Default to true if not set
+        if UserDefaults.standard.object(forKey: "NotificationsEnabled") == nil {
+            isNotificationsEnabled = true
+            UserDefaults.standard.set(true, forKey: "NotificationsEnabled")
+        }
+    }
+    
+    private func saveNotificationSettings(_ enabled: Bool) {
+        UserDefaults.standard.set(enabled, forKey: "NotificationsEnabled")
+        
+        if enabled {
+            requestNotificationPermission()
+        }
+    }
+    
+    private func requestNotificationPermission() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+            DispatchQueue.main.async {
+                if !granted {
+                    // If permission is denied, update the toggle
+                    self.isNotificationsEnabled = false
+                }
+            }
+        }
     }
 }
 
@@ -297,6 +331,48 @@ struct ModernProfileRow: View {
             }
         }
         .buttonStyle(.plain)
+    }
+}
+
+struct ModernProfileRowWithToggle: View {
+    let icon: String
+    let iconColor: Color
+    let title: String
+    let subtitle: String
+    @Binding var isEnabled: Bool
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundStyle(iconColor)
+                .frame(width: 32, height: 32)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.headline)
+                    .fontWeight(.medium)
+                    .foregroundStyle(.primary)
+                    .multilineTextAlignment(.leading)
+                
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.leading)
+            }
+            
+            Spacer()
+            
+            Toggle("", isOn: $isEnabled)
+                .toggleStyle(SwitchToggleStyle(tint: iconColor))
+                .labelsHidden()
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                isEnabled.toggle()
+            }
+        }
     }
 }
 
